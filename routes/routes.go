@@ -2,6 +2,7 @@ package routes
 
 import (
 	"github.com/gin-gonic/gin"
+	"go-lim/common"
 	"go-lim/config"
 	"go-lim/middleware"
 )
@@ -23,6 +24,10 @@ func InitRoutes() *gin.Engine {
 
 	// 注册路由
 	InitBaseRoutes(apiGroup) // 注册公共路由,无需jwt中间件
-	InitUserRoutes(apiGroup) // 注册用户路由,启用jwt中间件
+	InitUserRoutes(apiGroup) // 注册用户路由
+	InitRoleRoutes(apiGroup) // 注册角色路由
+	InitMenuRoutes(apiGroup) // 注册菜单路由
+
+	common.Log.Info("初始化路由完成！")
 	return r
 }

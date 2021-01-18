@@ -13,15 +13,6 @@ import (
 // 全局配置变量
 var Conf = new(config)
 
-//var (
-//	System *SystemConfig
-//	Logs *LogsConfig
-//	Mysql *MysqlConfig
-//	Casbin *CasbinConfig
-//	Jwt *JwtConfig
-//	RateLimit *RateLimitConfig
-//)
-
 type config struct {
 	System    *SystemConfig    `mapstructure:"system" json:"system"`
 	Logs      *LogsConfig      `mapstructure:"logs" json:"logs"`
@@ -31,10 +22,32 @@ type config struct {
 	RateLimit *RateLimitConfig `mapstructure:"rate-limit" json:"rateLimit"`
 }
 
+// 设置读取配置信息
+func InitConfig() {
+	workDir, err := os.Getwd()
+	if err != nil {
+		panic(fmt.Errorf("读取应用目录失败:%s \n", err))
+	}
+
+	viper.SetConfigName("config.dev")
+	viper.SetConfigType("yml")
+	viper.AddConfigPath(workDir + "./")
+	// 读取配置信息
+	err = viper.ReadInConfig()
+	if err != nil {
+		panic(fmt.Errorf("读取配置文件失败:%s \n", err))
+	}
+	// 将读取的配置信息保存至全局变量Conf
+	if err := viper.Unmarshal(Conf); err != nil {
+		panic(fmt.Errorf("初始化配置文件失败:%s \n", err))
+	}
+}
+
 type SystemConfig struct {
 	UrlPathPrefix string `mapstructure:"url-path-prefix" json:"urlPathPrefix"`
 	ApiVersion    string `mapstructure:"api-version" json:"apiVersion"`
 	Port          int    `mapstructure:"port" json:"port"`
+	InitData      bool   `mapstructure:"init-data" json:"initData"`
 }
 
 type LogsConfig struct {
@@ -72,26 +85,4 @@ type JwtConfig struct {
 
 type RateLimitConfig struct {
 	Max int64 `mapstructure:"max" json:"max"`
-}
-
-// 设置读取配置信息
-func InitConfig() {
-	workDir, err := os.Getwd()
-	if err != nil {
-		panic(fmt.Errorf("读取应用目录失败:%s \n", err))
-	}
-
-	viper.SetConfigName("config.dev")
-	viper.SetConfigType("yml")
-	viper.AddConfigPath(workDir + "./")
-	// 读取配置信息
-	err = viper.ReadInConfig()
-	if err != nil {
-		panic(fmt.Errorf("读取配置文件失败:%s \n", err))
-	}
-	// 将读取的配置信息保存至全局变量Conf
-	if err := viper.Unmarshal(Conf); err != nil {
-		panic(fmt.Errorf("初始化配置文件失败:%s \n", err))
-	}
-
 }

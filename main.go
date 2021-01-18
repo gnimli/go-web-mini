@@ -24,6 +24,9 @@ func main() {
 	// 初始化数据库(mysql)
 	common.InitMysql()
 
+	// 初始化mysql数据
+	common.InitData()
+
 	// 注册所有路由
 	r := routes.InitRoutes()
 

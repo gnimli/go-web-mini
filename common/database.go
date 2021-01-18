@@ -34,7 +34,7 @@ func InitMysql() {
 		config.Conf.Mysql.Collation,
 		config.Conf.Mysql.Query,
 	)
-	Log.Info("数据库连接DSN: ", showDsn)
+	//Log.Info("数据库连接DSN: ", showDsn)
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{
 		//// 禁用外键(指定外键时不会在mysql创建真实的外键约束)
 		//DisableForeignKeyConstraintWhenMigrating: true,
@@ -44,6 +44,7 @@ func InitMysql() {
 		//},
 	})
 	if err != nil {
+		Log.Panicf("初始化mysql数据库异常: %v", err)
 		panic(fmt.Errorf("初始化mysql数据库异常: %v", err))
 	}
 
@@ -55,7 +56,7 @@ func InitMysql() {
 	DB = db
 	// 自动迁移表结构
 	dbAutoMigrate()
-	Log.Info("初始化mysql数据库完成")
+	Log.Infof("初始化mysql数据库完成! dsn: %s", showDsn)
 }
 
 // 自动迁移表结构
@@ -64,5 +65,6 @@ func dbAutoMigrate() {
 		&model.User{},
 		&model.Role{},
 		&model.Menu{},
+		&model.Api{},
 	)
 }
