@@ -65,7 +65,7 @@ func login(c *gin.Context) (interface{}, error) {
 	var req vo.RegisterAndLoginRequest
 	// 请求json绑定
 	if err := c.ShouldBindJSON(&req); err != nil {
-		return "", jwt.ErrMissingLoginValues
+		return "", err
 	}
 
 	// 密码通过RSA解密
@@ -117,7 +117,7 @@ func loginResponse(c *gin.Context, code int, token string, expires time.Time) {
 	response.Response(c, code, code,
 		gin.H{
 			"token":   token,
-			"expires": expires,
+			"expires": expires.Format("2006-01-02 15:04:05"),
 		},
 		"登录成功")
 }

@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"go-lim/repository"
 )
@@ -26,7 +27,7 @@ func NewUserController() IUserController {
 }
 
 func (u UserController) GetUserInfo(c *gin.Context) {
-
+	fmt.Println("get user info")
 }
 
 func (u UserController) GetUsers(c *gin.Context) {

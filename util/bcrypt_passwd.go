@@ -11,9 +11,9 @@ func GenPasswd(passwd string) string {
 // 通过比较两个字符串hash判断是否出自同一个明文
 // hashPasswd 需要对比的密文
 // passwd 明文
-func ComparePasswd(hashPasswd string, passwd string) bool {
+func ComparePasswd(hashPasswd string, passwd string) error {
 	if err := bcrypt.CompareHashAndPassword([]byte(hashPasswd), []byte(passwd)); err != nil {
-		return false
+		return err
 	}
-	return true
+	return nil
 }

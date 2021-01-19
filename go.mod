@@ -3,7 +3,7 @@ module go-lim
 go 1.15
 
 require (
-	github.com/appleboy/gin-jwt/v2 v2.6.4 // indirect
+	github.com/appleboy/gin-jwt/v2 v2.6.4
 	github.com/casbin/casbin/v2 v2.20.2
 	github.com/casbin/gorm-adapter/v3 v3.0.4
 	github.com/gin-gonic/gin v1.6.3

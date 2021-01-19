@@ -34,6 +34,7 @@ func InitRoutes() *gin.Engine {
 	InitUserRoutes(apiGroup, authMiddleware) // 注册用户路由
 	InitRoleRoutes(apiGroup, authMiddleware) // 注册角色路由
 	InitMenuRoutes(apiGroup, authMiddleware) // 注册菜单路由
+	InitApiRoutes(apiGroup, authMiddleware)  // 注册接口路由
 
 	common.Log.Info("初始化路由完成！")
 	return r
