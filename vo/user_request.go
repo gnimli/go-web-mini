@@ -1,5 +1,11 @@
 package vo
 
+// 用户登录结构体
+type RegisterAndLoginRequest struct {
+	Username string `json:"username" binding:"required"`
+	Password string `json:"password" binding:"required"`
+}
+
 // 创建用户结构体
 type CreateUserRequest struct {
 	Username     string `json:"username" binding:"required"`

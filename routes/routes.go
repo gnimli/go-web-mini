@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"go-lim/common"
 	"go-lim/config"
@@ -19,14 +20,20 @@ func InitRoutes() *gin.Engine {
 	//启用全局跨域中间件
 	r.Use(middleware.CORSMiddleware())
 
+	authMiddleware, err := middleware.InitAuth()
+	if err != nil {
+		common.Log.Panicf("初始化JWT中间件失败：%v", err)
+		panic(fmt.Sprintf("初始化JWT中间件失败：%v", err))
+	}
+
 	// 路由分组
 	apiGroup := r.Group("/" + config.Conf.System.UrlPathPrefix)
 
 	// 注册路由
-	InitBaseRoutes(apiGroup) // 注册公共路由,无需jwt中间件
-	InitUserRoutes(apiGroup) // 注册用户路由
-	InitRoleRoutes(apiGroup) // 注册角色路由
-	InitMenuRoutes(apiGroup) // 注册菜单路由
+	InitBaseRoutes(apiGroup, authMiddleware) // 注册公共路由,无需jwt中间件
+	InitUserRoutes(apiGroup, authMiddleware) // 注册用户路由
+	InitRoleRoutes(apiGroup, authMiddleware) // 注册角色路由
+	InitMenuRoutes(apiGroup, authMiddleware) // 注册菜单路由
 
 	common.Log.Info("初始化路由完成！")
 	return r

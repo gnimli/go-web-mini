@@ -6,6 +6,12 @@ import (
 )
 
 type IUserRepository interface {
+	// 登录
+	Login(user *model.User) (*model.User, error)
+	Logout(user *model.User) (*model.User, error)
+	RefreshToken(user *model.User) (*model.User, error)
+
+	// 用户
 	GetUserInfo()
 	GetUsers(user *vo.UserListRequest) (*[]model.User, error)
 	ChangePwd(pwd *vo.ChangePwdRequest) error
@@ -20,6 +26,19 @@ type UserRepository struct {
 // UserRepository构造函数
 func NewUserRepository() IUserRepository {
 	return UserRepository{}
+}
+
+// 登录
+func (u UserRepository) Login(user *model.User) (*model.User, error) {
+	panic("implement me")
+}
+
+func (u UserRepository) Logout(user *model.User) (*model.User, error) {
+	panic("implement me")
+}
+
+func (u UserRepository) RefreshToken(user *model.User) (*model.User, error) {
+	panic("implement me")
 }
 
 func (u UserRepository) GetUserInfo() {

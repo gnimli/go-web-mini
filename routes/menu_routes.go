@@ -1,15 +1,16 @@
 package routes
 
 import (
+	jwt "github.com/appleboy/gin-jwt/v2"
 	"github.com/gin-gonic/gin"
 	"go-lim/controller"
-	"go-lim/middleware"
 )
 
-func InitMenuRoutes(r *gin.RouterGroup) gin.IRoutes {
+func InitMenuRoutes(r *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddleware) gin.IRoutes {
 	menuController := controller.NewMenuController()
 	router := r.Group("/menu")
-	router.Use(middleware.AuthMiddleware())
+	// 开启jwt认证中间件
+	router.Use(authMiddleware.MiddlewareFunc())
 	{
 		router.GET("/tree", menuController.GetMenuTree)
 		router.GET("/all/:roleId", menuController.GetAllMenuByRoleId)
