@@ -24,6 +24,9 @@ func main() {
 	// 初始化数据库(mysql)
 	common.InitMysql()
 
+	// 初始化casbin策略管理器
+	common.InitCasbinEnforcer()
+
 	// 初始化mysql数据
 	common.InitData()
 

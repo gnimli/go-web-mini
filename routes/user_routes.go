@@ -12,6 +12,7 @@ func InitUserRoutes(r *gin.RouterGroup) gin.IRoutes {
 	router := r.Group("/user")
 	// 开启jwt认证中间件
 	router.Use(middleware.AuthMiddleware())
+	//
 	{
 		router.POST("/info", userController.GetUserInfo)
 		router.GET("/list", userController.GetUsers)
