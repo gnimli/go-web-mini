@@ -84,5 +84,6 @@ type JwtConfig struct {
 }
 
 type RateLimitConfig struct {
-	Max int64 `mapstructure:"max" json:"max"`
+	FillInterval int64 `mapstructure:"fill-interval" json:"fillInterval"`
+	Capacity     int64 `mapstructure:"capacity" json:"capacity"`
 }

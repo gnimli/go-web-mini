@@ -2,6 +2,7 @@ package repository
 
 import (
 	"errors"
+	"github.com/gin-gonic/gin"
 	"go-lim/common"
 	"go-lim/model"
 	"go-lim/util"
@@ -9,12 +10,10 @@ import (
 )
 
 type IUserRepository interface {
-	// 登录
-	Login(user *model.User) (*model.User, error)
-
-	// 用户
-	GetUserInfo()
-	GetUsers(user *vo.UserListRequest) (*[]model.User, error)
+	Login(user *model.User) (*model.User, error) // 登录
+	GetCurrentUser(c *gin.Context) model.User    // 获取当前用户信息
+	GetUserById(id uint) (model.User, error)     // 获取单个用户
+	GetUsers() (*[]model.User, error)
 	ChangePwd(pwd *vo.ChangePwdRequest) error
 	CreateUser(user *vo.CreateUserRequest) (model.User, error)
 	UpdateUserById(id string, user *vo.CreateUserRequest) (model.User, error)
@@ -30,10 +29,10 @@ func NewUserRepository() IUserRepository {
 }
 
 // 登录
-func (u UserRepository) Login(user *model.User) (*model.User, error) {
+func (ur UserRepository) Login(user *model.User) (*model.User, error) {
 	// 根据用户名查询用户
 	var firstUser model.User
-	err := common.DB.Debug().Where("username = ?", user.Username).Preload("Roles").First(&firstUser).Error
+	err := common.DB.Where("username = ?", user.Username).Preload("Roles").First(&firstUser).Error
 	//fmt.Println("firstUser---")
 	//fmt.Printf("%+v", firstUser)
 	if err != nil {
@@ -48,26 +47,41 @@ func (u UserRepository) Login(user *model.User) (*model.User, error) {
 	return &firstUser, nil
 }
 
-func (u UserRepository) GetUserInfo() {
+// 获取当前用户信息
+func (ur UserRepository) GetCurrentUser(c *gin.Context) model.User {
+	var newUser model.User
+	ctxUser, exist := c.Get("user")
+	if !exist {
+		return newUser
+	}
+	u, _ := ctxUser.(model.User)
+	user, _ := ur.GetUserById(u.ID)
+	return user
+}
+
+// 获取单个用户
+func (ur UserRepository) GetUserById(id uint) (model.User, error) {
+	var user model.User
+	err := common.DB.Where("id = ?", id).Preload("Roles").First(&user).Error
+	return user, err
+}
+
+func (ur UserRepository) GetUsers() (*[]model.User, error) {
 	panic("implement me")
 }
 
-func (u UserRepository) GetUsers(user *vo.UserListRequest) (*[]model.User, error) {
+func (ur UserRepository) ChangePwd(pwd *vo.ChangePwdRequest) error {
 	panic("implement me")
 }
 
-func (u UserRepository) ChangePwd(pwd *vo.ChangePwdRequest) error {
+func (ur UserRepository) CreateUser(user *vo.CreateUserRequest) (model.User, error) {
 	panic("implement me")
 }
 
-func (u UserRepository) CreateUser(user *vo.CreateUserRequest) (model.User, error) {
+func (ur UserRepository) UpdateUserById(id string, user *vo.CreateUserRequest) (model.User, error) {
 	panic("implement me")
 }
 
-func (u UserRepository) UpdateUserById(id string, user *vo.CreateUserRequest) (model.User, error) {
-	panic("implement me")
-}
-
-func (u UserRepository) BatchDeleteUserByIds(ids []string) error {
+func (ur UserRepository) BatchDeleteUserByIds(ids []string) error {
 	panic("implement me")
 }

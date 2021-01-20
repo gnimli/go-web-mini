@@ -4,6 +4,7 @@ import (
 	jwt "github.com/appleboy/gin-jwt/v2"
 	"github.com/gin-gonic/gin"
 	"go-lim/controller"
+	"go-lim/middleware"
 )
 
 func InitRoleRoutes(r *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddleware) gin.IRoutes {
@@ -11,6 +12,8 @@ func InitRoleRoutes(r *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddleware) gi
 	router := r.Group("/role")
 	// 开启jwt认证中间件
 	router.Use(authMiddleware.MiddlewareFunc())
+	// 开启casbin鉴权中间件
+	router.Use(middleware.CasbinMiddleware())
 	{
 		router.GET("/list", roleController.GetRoles)
 		router.POST("/create", roleController.CreateRole)

@@ -2,7 +2,6 @@ package middleware
 
 import (
 	"github.com/gin-gonic/gin"
-	"log"
 	"net/http"
 )
 
@@ -29,13 +28,14 @@ func CORSMiddleware() gin.HandlerFunc {
 		//允许类型校验
 		if method == http.MethodOptions {
 			c.AbortWithStatus(200)
+			return
 		}
 
-		defer func() {
-			if err := recover(); err != nil {
-				log.Printf("Panic info is: %v", err)
-			}
-		}()
+		//defer func() {
+		//	if err := recover(); err != nil {
+		//		log.Printf("Panic info is: %v", err)
+		//	}
+		//}()
 
 		c.Next()
 	}

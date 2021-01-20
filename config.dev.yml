@@ -61,7 +61,9 @@ jwt:
   # 刷新token最大过期时间, 小时
   max-refresh: 12
 
-# 速率限制配置
+# 令牌桶限流配置
 rate-limit:
-  # 访问最大限制, 次/秒
-  max: 200
+  # 填充一个令牌需要的时间间隔,毫秒
+  fill-interval: 50
+  # 桶容量
+  capacity: 200

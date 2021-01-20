@@ -27,6 +27,9 @@ func main() {
 	// 初始化casbin策略管理器
 	common.InitCasbinEnforcer()
 
+	// 初始化Validator数据校验
+	common.InitValidate()
+
 	// 初始化mysql数据
 	common.InitData()
 

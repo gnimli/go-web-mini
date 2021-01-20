@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"fmt"
 	jwt "github.com/appleboy/gin-jwt/v2"
 	"github.com/gin-gonic/gin"
 	"go-lim/common"
@@ -64,9 +65,15 @@ func identityHandler(c *gin.Context) interface{} {
 func login(c *gin.Context) (interface{}, error) {
 	var req vo.RegisterAndLoginRequest
 	// 请求json绑定
-	if err := c.ShouldBindJSON(&req); err != nil {
+	if err := c.ShouldBind(&req); err != nil {
 		return "", err
 	}
+
+	//err := common.Validate.Struct(req)
+	//if err != nil {
+	//	errs := err.(validator.ValidationErrors)
+	//	return errs.Translate(common.Trans),errs
+	//}
 
 	// 密码通过RSA解密
 	//decodeData, err := utils.RSADecrypt([]byte(req.Password), config.Conf.System.RSAPrivateBytes)
@@ -109,7 +116,7 @@ func authorizator(data interface{}, c *gin.Context) bool {
 // 用户登录校验失败处理
 func unauthorized(c *gin.Context, code int, message string) {
 	common.Log.Debugf("JWT认证失败, 错误码%d, 错误信息%s", code, message)
-	response.Response(c, code, code, nil, message)
+	response.Response(c, code, code, nil, fmt.Sprintf("JWT认证失败, 错误码%d, 错误信息%s", code, message))
 }
 
 // 登录成功后的响应

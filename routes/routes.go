@@ -6,6 +6,7 @@ import (
 	"go-lim/common"
 	"go-lim/config"
 	"go-lim/middleware"
+	"time"
 )
 
 // 初始化
@@ -17,6 +18,10 @@ func InitRoutes() *gin.Engine {
 	//r := gin.New()
 	//r.Use(gin.Recovery())
 
+	//启用限流中间件,默认每50毫秒填充一个令牌，最多填充200个
+	fillInterval := time.Duration(config.Conf.RateLimit.FillInterval)
+	capacity := config.Conf.RateLimit.Capacity
+	r.Use(middleware.RateLimitMiddleware(time.Millisecond*fillInterval, capacity))
 	//启用全局跨域中间件
 	r.Use(middleware.CORSMiddleware())
 

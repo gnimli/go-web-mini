@@ -4,6 +4,7 @@ import (
 	jwt "github.com/appleboy/gin-jwt/v2"
 	"github.com/gin-gonic/gin"
 	"go-lim/controller"
+	"go-lim/middleware"
 )
 
 func InitApiRoutes(r *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddleware) gin.IRoutes {
@@ -11,6 +12,8 @@ func InitApiRoutes(r *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddleware) gin
 	router := r.Group("/api")
 	// 开启jwt认证中间件
 	router.Use(authMiddleware.MiddlewareFunc())
+	// 开启casbin鉴权中间件
+	router.Use(middleware.CasbinMiddleware())
 	{
 		router.GET("/list", apiController.GetApis)
 		router.GET("/all/category/:roleId", apiController.GetAllApiGroupByCategoryByRoleId)
