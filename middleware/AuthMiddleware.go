@@ -15,7 +15,6 @@ import (
 )
 
 // 使用gin-jwt中间件
-
 func InitAuth() (*jwt.GinJWTMiddleware, error) {
 	authMiddleware, err := jwt.New(&jwt.GinJWTMiddleware{
 		Realm:           config.Conf.Jwt.Realm,                                 // jwt标识

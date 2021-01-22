@@ -66,5 +66,6 @@ func dbAutoMigrate() {
 		&model.Role{},
 		&model.Menu{},
 		&model.Api{},
+		&model.OperationLog{},
 	)
 }

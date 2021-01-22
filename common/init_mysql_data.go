@@ -394,6 +394,20 @@ func InitData() {
 			Category: "role",
 			Desc:     "更新角色的权限接口",
 		},
+		{
+			Model:    gorm.Model{ID: 27},
+			Method:   "GET",
+			Path:     "/operation/log/list",
+			Category: "operation-log",
+			Desc:     "获取操作日志列表",
+		},
+		{
+			Model:    gorm.Model{ID: 28},
+			Method:   "DELETE",
+			Path:     "/v1/operation/log/delete/batch",
+			Category: "operation-log",
+			Desc:     "批量删除操作日志",
+		},
 	}
 	newApi := make([]model.Api, 0)
 	newRoleCasbin := make([]model.RoleCasbin, 0)

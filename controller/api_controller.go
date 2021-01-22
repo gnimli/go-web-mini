@@ -17,7 +17,7 @@ type ApiController struct {
 	ApiRepository repository.IApiRepository
 }
 
-func NewApiController() IApiController{
+func NewApiController() IApiController {
 	apiRepository := repository.NewApiRepository()
 	apiController := ApiController{ApiRepository: apiRepository}
 	return apiController
@@ -42,4 +42,3 @@ func (a ApiController) UpdateApiById(c *gin.Context) {
 func (a ApiController) BatchDeleteApiByIds(c *gin.Context) {
 	panic("implement me")
 }
-

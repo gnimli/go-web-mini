@@ -2,12 +2,12 @@ package vo
 
 // 新增角色结构体
 type CreateRoleRequest struct {
-	Name    string `json:"name" binding:"required"`
-	Keyword string `json:"keyword" binding:"required"`
-	Desc    string `json:"desc"`
-	Status  uint   `json:"status"`
-	Sort    uint   `json:"sort" binding:"required"`
-	Creator string `json:"creator"`
+	Name    string `json:"name" form:"name" validate:"required"`
+	Keyword string `json:"keyword" form:"keyword" validate:"required"`
+	Desc    string `json:"desc" form:"desc"`
+	Status  uint   `json:"status" form:"status"`
+	Sort    uint   `json:"sort" form:"sort" validate:"required"`
+	Creator string `json:"creator" form:"creator"`
 }
 
 // 获取用户角色结构体

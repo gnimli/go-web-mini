@@ -15,11 +15,11 @@ var Trans ut.Translator
 
 // 初始化Validator数据校验
 func InitValidate() {
-	zh := zh.New()
-	uni := ut.New(zh, zh)
+	chinese := zh.New()
+	uni := ut.New(chinese, chinese)
 	trans, _ := uni.GetTranslator("zh")
 	Trans = trans
 	Validate = validator.New()
-	ch_translations.RegisterDefaultTranslations(Validate, Trans)
+	_ = ch_translations.RegisterDefaultTranslations(Validate, Trans)
 	Log.Infof("初始化validator.v10数据校验器完成")
 }

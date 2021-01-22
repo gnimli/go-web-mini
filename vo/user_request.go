@@ -8,9 +8,9 @@ type RegisterAndLoginRequest struct {
 
 // 创建用户结构体
 type CreateUserRequest struct {
-	Username     string `json:"username" binding:"required"`
+	Username     string `json:"username" validate:"required"`
 	Password     string `json:"password"`
-	Mobile       string `json:"mobile" binding:"required"`
+	Mobile       string `json:"mobile" validate:"required"`
 	Avatar       string `json:"avatar"`
 	Nickname     string `json:"nickname"`
 	Introduction string `json:"introduction"`
@@ -23,13 +23,13 @@ type UserListRequest struct {
 	Username string `json:"username" form:"username"`
 	Mobile   string `json:"mobile" form:"mobile"`
 	Nickname string `json:"nickname" form:"nickname"`
-	Status   *uint  `json:"status" form:"status"`
-	PageNum  uint   `json:"pageNum" form:"pageNum"`
-	PageSize uint   `json:"pageSize" form:"pageSize"`
+	Status   uint   `json:"status" form:"status"`
+	PageNum  int    `json:"pageNum" form:"pageNum"`
+	PageSize int    `json:"pageSize" form:"pageSize"`
 }
 
 // 修改密码结构体
 type ChangePwdRequest struct {
-	OldPassword string `json:"oldPassword" form:"oldPassword" binding:"required"`
-	NewPassword string `json:"newPassword" form:"newPassword" binding:"required"`
+	OldPassword string `json:"oldPassword" form:"oldPassword" validate:"required"`
+	NewPassword string `json:"newPassword" form:"newPassword" validate:"required"`
 }
