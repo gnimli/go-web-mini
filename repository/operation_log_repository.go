@@ -27,19 +27,19 @@ func (o OperationLogRepository) GetOperationLogs(req *vo.OperationLogsRequest) (
 
 	username := strings.TrimSpace(req.Username)
 	if username != "" {
-		db = db.Where("username LIKE ?", fmt.Sprintf("%s%%", username))
+		db = db.Where("username LIKE ?", fmt.Sprintf("%%%s%%", username))
 	}
 	ip := strings.TrimSpace(req.Ip)
 	if ip != "" {
-		db = db.Where("ip LIKE ?", fmt.Sprintf("%s%%", ip))
+		db = db.Where("ip LIKE ?", fmt.Sprintf("%%%s%%", ip))
 	}
 	path := strings.TrimSpace(req.Path)
 	if path != "" {
-		db = db.Where("path LIKE ?", fmt.Sprintf("%s%%", path))
+		db = db.Where("path LIKE ?", fmt.Sprintf("%%%s%%", path))
 	}
 	status := req.Status
 	if status != 0 {
-		db = db.Where("status LIKE ?", fmt.Sprintf("%s%%", status))
+		db = db.Where("status = ?", status)
 	}
 
 	// 分页
@@ -74,7 +74,7 @@ func (o OperationLogRepository) SaveOperationLogChannel(olc <-chan *model.Operat
 	for log := range olc {
 		Logs = append(Logs, *log)
 		// 每10条记录到数据库
-		if len(Logs) > 9 {
+		if len(Logs) > 5 {
 			common.DB.Create(&Logs)
 			Logs = make([]model.OperationLog, 0)
 		}

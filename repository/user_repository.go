@@ -12,11 +12,11 @@ import (
 )
 
 type IUserRepository interface {
-	Login(user *model.User) (*model.User, error) // 登录
-	GetCurrentUser(c *gin.Context) model.User    // 获取当前登录用户信息
-	GetUserById(id uint) (model.User, error)     // 获取单个用户
-	GetUsers(req *vo.UserListRequest) ([]model.User, int64, error)
-	ChangePwd(pwd *vo.ChangePwdRequest) error
+	Login(user *model.User) (*model.User, error)                   // 登录
+	GetCurrentUser(c *gin.Context) model.User                      // 获取当前登录用户信息
+	GetUserById(id uint) (model.User, error)                       // 获取单个用户
+	GetUsers(req *vo.UserListRequest) ([]model.User, int64, error) // 获取用户列表
+	ChangePwd(username string, newPasswd string) error             // 修改密码
 	CreateUser(user *vo.CreateUserRequest) (model.User, error)
 	UpdateUserById(id string, user *vo.CreateUserRequest) (model.User, error)
 	BatchDeleteUserByIds(ids []string) error
@@ -68,25 +68,26 @@ func (ur UserRepository) GetUserById(id uint) (model.User, error) {
 	return user, err
 }
 
+// 获取用户列表
 func (ur UserRepository) GetUsers(req *vo.UserListRequest) ([]model.User, int64, error) {
 	var list []model.User
 	db := common.DB.Model(&model.User{}).Order("created_at DESC")
 
 	username := strings.TrimSpace(req.Username)
 	if username != "" {
-		db = db.Where("username LIKE ?", fmt.Sprintf("%s%%", username))
+		db = db.Where("username LIKE ?", fmt.Sprintf("%%%s%%", username))
 	}
 	nickname := strings.TrimSpace(req.Nickname)
 	if nickname != "" {
-		db = db.Where("nickname LIKE ?", fmt.Sprintf("%s%%", nickname))
+		db = db.Where("nickname LIKE ?", fmt.Sprintf("%%%s%%", nickname))
 	}
 	mobile := strings.TrimSpace(req.Mobile)
 	if mobile != "" {
-		db = db.Where("mobile LIKE ?", fmt.Sprintf("%s%%", mobile))
+		db = db.Where("mobile LIKE ?", fmt.Sprintf("%%%s%%", mobile))
 	}
 	status := req.Status
-	if status == 0 || status == 1 {
-		db = db.Where("username LIKE ?", fmt.Sprintf("%s%%", username))
+	if status != 0 {
+		db = db.Where("status = ?", status)
 	}
 	// 当pageNum > 0 且 pageSize > 0 才分页
 	//记录总条数
@@ -98,15 +99,18 @@ func (ur UserRepository) GetUsers(req *vo.UserListRequest) ([]model.User, int64,
 	pageNum := req.PageNum
 	pageSize := req.PageSize
 	if pageNum > 0 && pageSize > 0 {
-		err = db.Offset((pageNum - 1) * pageSize).Limit(pageSize).Find(&list).Error
+		err = db.Debug().Offset((pageNum - 1) * pageSize).Limit(pageSize).Find(&list).Error
 	} else {
-		err = db.Find(&list).Error
+		err = db.Debug().Find(&list).Error
 	}
 	return list, total, err
 }
 
-func (ur UserRepository) ChangePwd(pwd *vo.ChangePwdRequest) error {
-	panic("implement me")
+// 修改密码
+func (ur UserRepository) ChangePwd(username string, hashNewPasswd string) error {
+
+	err := common.DB.Model(&model.User{}).Where("username = ?", username).Update("password", hashNewPasswd).Error
+	return err
 }
 
 func (ur UserRepository) CreateUser(user *vo.CreateUserRequest) (model.User, error) {

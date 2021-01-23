@@ -2,8 +2,8 @@ package vo
 
 // 用户登录结构体
 type RegisterAndLoginRequest struct {
-	Username string `form:"username" json:"username" binding:"required"`
-	Password string `form:"password" json:"password" binding:"required"`
+	Username string `form:"username" json:"username" binding:"required,min=3,max=20"`
+	Password string `form:"password" json:"password" binding:"required,min=6,max=255"`
 }
 
 // 创建用户结构体
@@ -30,6 +30,6 @@ type UserListRequest struct {
 
 // 修改密码结构体
 type ChangePwdRequest struct {
-	OldPassword string `json:"oldPassword" form:"oldPassword" validate:"required"`
-	NewPassword string `json:"newPassword" form:"newPassword" validate:"required"`
+	OldPassword string `json:"oldPassword" form:"oldPassword" validate:"required,min=6,max=255"`
+	NewPassword string `json:"newPassword" form:"newPassword" validate:"required,min=6,max=255,nefield=OldPassword"`
 }

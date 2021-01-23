@@ -10,7 +10,7 @@ import (
 )
 
 // 操作日志channel
-var OperationLogChan = make(chan *model.OperationLog, 50)
+var OperationLogChan = make(chan *model.OperationLog, 30)
 
 func OperationLogMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -52,14 +52,14 @@ func OperationLogMiddleware() gin.HandlerFunc {
 			Method:     c.Request.Method,
 			Path:       path,
 			Desc:       apiDesc,
-			Status:     0,
+			Status:     c.Writer.Status(),
 			StartTime:  startTime,
 			TimeCost:   timeCost,
 			//UserAgent:  c.Request.UserAgent(),
 		}
 
 		// 最好是将日志发送到rabbitmq或者kafka中
-		// 这里是发送到channel中，开启5个goroutine处理
+		// 这里是发送到channel中，开启3个goroutine处理
 		OperationLogChan <- &operationLog
 	}
 }
