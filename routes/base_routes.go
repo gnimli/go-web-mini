@@ -9,7 +9,7 @@ import (
 func InitBaseRoutes(r *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddleware) gin.IRoutes {
 	router := r.Group("/base")
 	{
-		// 登录登出/刷新token无需鉴权
+		// 登录登出刷新token无需鉴权
 		router.POST("/login", authMiddleware.LoginHandler)
 		router.POST("/logout", authMiddleware.LogoutHandler)
 		router.POST("/refreshToken", authMiddleware.RefreshHandler)

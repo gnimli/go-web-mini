@@ -14,7 +14,7 @@ import (
 	"time"
 )
 
-// 使用gin-jwt中间件
+// 初始化jwt中间件
 func InitAuth() (*jwt.GinJWTMiddleware, error) {
 	authMiddleware, err := jwt.New(&jwt.GinJWTMiddleware{
 		Realm:           config.Conf.Jwt.Realm,                                 // jwt标识
@@ -67,12 +67,6 @@ func login(c *gin.Context) (interface{}, error) {
 	if err := c.ShouldBind(&req); err != nil {
 		return "", err
 	}
-
-	//err := common.Validate.Struct(req)
-	//if err != nil {
-	//	errs := err.(validator.ValidationErrors)
-	//	return errs.Translate(common.Trans),errs
-	//}
 
 	// 密码通过RSA解密
 	//decodeData, err := utils.RSADecrypt([]byte(req.Password), config.Conf.System.RSAPrivateBytes)

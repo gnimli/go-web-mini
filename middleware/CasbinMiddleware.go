@@ -19,10 +19,12 @@ func CasbinMiddleware() gin.HandlerFunc {
 		user := ur.GetCurrentUser(c)
 		// 获得用户的全部角色
 		roles := user.Roles
-		// 获得用户的全部角色的Keyword
+		// 获得用户全部未被禁用的角色的Keyword
 		var subs []string
 		for _, role := range roles {
-			subs = append(subs, role.Keyword)
+			if role.Status == 1 {
+				subs = append(subs, role.Keyword)
+			}
 		}
 		// 获得请求路径URL
 		//obj := strings.Replace(c.Request.URL.Path, "/"+config.Conf.System.UrlPathPrefix, "", 1)

@@ -17,7 +17,7 @@ type IUserRepository interface {
 	GetUserById(id uint) (model.User, error)                       // 获取单个用户
 	GetUsers(req *vo.UserListRequest) ([]model.User, int64, error) // 获取用户列表
 	ChangePwd(username string, newPasswd string) error             // 修改密码
-	CreateUser(user *vo.CreateUserRequest) (model.User, error)
+	CreateUser(user *model.User) error                             // 创建用户
 	UpdateUserById(id string, user *vo.CreateUserRequest) (model.User, error)
 	BatchDeleteUserByIds(ids []string) error
 }
@@ -32,13 +32,34 @@ func NewUserRepository() IUserRepository {
 
 // 登录
 func (ur UserRepository) Login(user *model.User) (*model.User, error) {
-	// 根据用户名查询用户
+	// 根据用户名查询用户(正常状态:用户状态正常)
 	var firstUser model.User
-	err := common.DB.Where("username = ?", user.Username).Preload("Roles").First(&firstUser).Error
-	//fmt.Println("firstUser---")
-	//fmt.Printf("%+v", firstUser)
+	err := common.DB.
+		Where("username = ?", user.Username).
+		Preload("Roles").
+		First(&firstUser).Error
 	if err != nil {
 		return nil, errors.New("用户不存在")
+	}
+
+	// 判断用户的状态
+	userStatus := firstUser.Status
+	if userStatus != 1 {
+		return nil, errors.New("用户被禁用")
+	}
+
+	// 判断用户拥有的所有角色的状态,全部角色都被禁用则不能登录
+	roles := firstUser.Roles
+	isValidate := false
+	for _, role := range roles {
+		// 有一个正常状态的角色就可以登录
+		if role.Status == 1 {
+			isValidate = true
+		}
+	}
+
+	if !isValidate {
+		return nil, errors.New("用户角色被禁用")
 	}
 
 	// 校验密码
@@ -61,10 +82,13 @@ func (ur UserRepository) GetCurrentUser(c *gin.Context) model.User {
 	return user
 }
 
-// 获取单个用户
+// 获取单个用户(正常状态)
+// 需要缓存，减少数据库访问
 func (ur UserRepository) GetUserById(id uint) (model.User, error) {
 	var user model.User
-	err := common.DB.Where("id = ?", id).Preload("Roles").First(&user).Error
+	err := common.DB.Where("id = ?", id).
+		Where("status = ?", 1).
+		Preload("Roles").First(&user).Error
 	return user, err
 }
 
@@ -96,25 +120,26 @@ func (ur UserRepository) GetUsers(req *vo.UserListRequest) ([]model.User, int64,
 	if err != nil {
 		return list, total, err
 	}
-	pageNum := req.PageNum
-	pageSize := req.PageSize
+	pageNum := int(req.PageNum)
+	pageSize := int(req.PageSize)
 	if pageNum > 0 && pageSize > 0 {
-		err = db.Debug().Offset((pageNum - 1) * pageSize).Limit(pageSize).Find(&list).Error
+		err = db.Offset((pageNum - 1) * pageSize).Limit(pageSize).Find(&list).Error
 	} else {
-		err = db.Debug().Find(&list).Error
+		err = db.Find(&list).Error
 	}
 	return list, total, err
 }
 
 // 修改密码
 func (ur UserRepository) ChangePwd(username string, hashNewPasswd string) error {
-
 	err := common.DB.Model(&model.User{}).Where("username = ?", username).Update("password", hashNewPasswd).Error
 	return err
 }
 
-func (ur UserRepository) CreateUser(user *vo.CreateUserRequest) (model.User, error) {
-	panic("implement me")
+// 创建用户
+func (ur UserRepository) CreateUser(user *model.User) error {
+	err := common.DB.Create(user).Error
+	return err
 }
 
 func (ur UserRepository) UpdateUserById(id string, user *vo.CreateUserRequest) (model.User, error) {

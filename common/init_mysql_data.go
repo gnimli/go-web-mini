@@ -404,7 +404,7 @@ func InitData() {
 		{
 			Model:    gorm.Model{ID: 28},
 			Method:   "DELETE",
-			Path:     "/v1/operation/log/delete/batch",
+			Path:     "/operation/log/delete/batch",
 			Category: "operation-log",
 			Desc:     "批量删除操作日志",
 		},
