@@ -14,6 +14,7 @@ require (
 	github.com/json-iterator/go v1.1.10 // indirect
 	github.com/juju/ratelimit v1.0.1
 	github.com/leodido/go-urn v1.2.1 // indirect
+	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/spf13/viper v1.7.1
 	github.com/thoas/go-funk v0.7.0
 	github.com/ugorji/go v1.2.3 // indirect

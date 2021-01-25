@@ -4,11 +4,13 @@ import (
 	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/patrickmn/go-cache"
 	"go-lim/common"
 	"go-lim/model"
 	"go-lim/util"
 	"go-lim/vo"
 	"strings"
+	"time"
 )
 
 type IUserRepository interface {
@@ -18,12 +20,15 @@ type IUserRepository interface {
 	GetUsers(req *vo.UserListRequest) ([]model.User, int64, error) // 获取用户列表
 	ChangePwd(username string, newPasswd string) error             // 修改密码
 	CreateUser(user *model.User) error                             // 创建用户
-	UpdateUserById(id string, user *vo.CreateUserRequest) (model.User, error)
+	UpdateUserById(id uint, user *model.User) error                // 更新用户
 	BatchDeleteUserByIds(ids []string) error
 }
 
 type UserRepository struct {
 }
+
+// 当前用户信息缓存，避免频繁查询数据库
+var userInfoCache = cache.New(24*time.Hour, 48*time.Hour)
 
 // UserRepository构造函数
 func NewUserRepository() IUserRepository {
@@ -55,6 +60,7 @@ func (ur UserRepository) Login(user *model.User) (*model.User, error) {
 		// 有一个正常状态的角色就可以登录
 		if role.Status == 1 {
 			isValidate = true
+			break
 		}
 	}
 
@@ -78,17 +84,31 @@ func (ur UserRepository) GetCurrentUser(c *gin.Context) model.User {
 		return newUser
 	}
 	u, _ := ctxUser.(model.User)
-	user, _ := ur.GetUserById(u.ID)
+
+	// 先查询缓存
+	cacheUser, found := userInfoCache.Get(u.Username)
+	var user model.User
+	if found {
+		user = cacheUser.(model.User)
+	} else {
+		// 缓存中没有就查询数据库
+		user, _ = ur.GetUserById(u.ID)
+	}
 	return user
 }
 
 // 获取单个用户(正常状态)
 // 需要缓存，减少数据库访问
 func (ur UserRepository) GetUserById(id uint) (model.User, error) {
+	fmt.Println("GetUserById---查数据库")
 	var user model.User
 	err := common.DB.Where("id = ?", id).
 		Where("status = ?", 1).
 		Preload("Roles").First(&user).Error
+
+	// 缓存
+	userInfoCache.Set(user.Username, user, cache.DefaultExpiration)
+
 	return user, err
 }
 
@@ -133,6 +153,22 @@ func (ur UserRepository) GetUsers(req *vo.UserListRequest) ([]model.User, int64,
 // 修改密码
 func (ur UserRepository) ChangePwd(username string, hashNewPasswd string) error {
 	err := common.DB.Model(&model.User{}).Where("username = ?", username).Update("password", hashNewPasswd).Error
+	// 如果修改密码成功，则更新当前用户信息缓存
+	// 先查询缓存
+	cacheUser, found := userInfoCache.Get(username)
+	if err == nil {
+		if found {
+			user := cacheUser.(model.User)
+			user.Password = hashNewPasswd
+			userInfoCache.Set(username, user, cache.DefaultExpiration)
+		} else {
+			// 没有缓存就查询用户信息缓存
+			var user model.User
+			common.DB.Where("username = ?", username).First(&user)
+			userInfoCache.Set(username, user, cache.DefaultExpiration)
+		}
+	}
+
 	return err
 }
 
@@ -142,8 +178,9 @@ func (ur UserRepository) CreateUser(user *model.User) error {
 	return err
 }
 
-func (ur UserRepository) UpdateUserById(id string, user *vo.CreateUserRequest) (model.User, error) {
-	panic("implement me")
+func (ur UserRepository) UpdateUserById(id uint, user *model.User) error {
+	err := common.DB.Model(&model.User{}).Where("id = ?", id).Updates(user).Error
+	return err
 }
 
 func (ur UserRepository) BatchDeleteUserByIds(ids []string) error {

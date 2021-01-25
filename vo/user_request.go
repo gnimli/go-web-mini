@@ -8,14 +8,14 @@ type RegisterAndLoginRequest struct {
 
 // 创建用户结构体
 type CreateUserRequest struct {
-	Username     string `json:"username" validate:"required"`
-	Password     string `json:"password" validate:"required"`
-	Mobile       string `json:"mobile" validate:"required"`
-	Avatar       string `json:"avatar"`
-	Nickname     string `json:"nickname"`
-	Introduction string `json:"introduction"`
-	Status       uint   `json:"status"`
-	RoleIds      []uint `json:"roleIds" validate:"required"`
+	Username     string `form:"username" json:"username" validate:"required"`
+	Password     string `form:"password" json:"password"`
+	Mobile       string `form:"mobile" json:"mobile" validate:"required"`
+	Avatar       string `form:"avatar" json:"avatar"`
+	Nickname     string `form:"nickname" json:"nickname"`
+	Introduction string `form:"introduction" json:"introduction"`
+	Status       uint   `form:"status" json:"status"`
+	RoleIds      []uint `form:"roleIds" json:"roleIds" validate:"required"`
 }
 
 // 获取用户列表结构体
