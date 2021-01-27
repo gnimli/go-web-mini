@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/patrickmn/go-cache"
+	"github.com/thoas/go-funk"
 	"go-lim/common"
 	"go-lim/model"
 	"go-lim/util"
@@ -21,7 +22,8 @@ type IUserRepository interface {
 	ChangePwd(username string, newPasswd string) error             // 修改密码
 	CreateUser(user *model.User) error                             // 创建用户
 	UpdateUserById(id uint, user *model.User) error                // 更新用户
-	BatchDeleteUserByIds(ids []string) error
+	BatchDeleteUserByIds(ids []uint) error                         //批量删除
+	GetUserMinRoleSortByIds(ids []uint) ([]int, error)             //根据用户ID查询用户角色排序最小值
 }
 
 type UserRepository struct {
@@ -178,11 +180,35 @@ func (ur UserRepository) CreateUser(user *model.User) error {
 	return err
 }
 
+// 更新用户
 func (ur UserRepository) UpdateUserById(id uint, user *model.User) error {
 	err := common.DB.Model(&model.User{}).Where("id = ?", id).Updates(user).Error
 	return err
 }
 
-func (ur UserRepository) BatchDeleteUserByIds(ids []string) error {
-	panic("implement me")
+// 批量删除
+func (ur UserRepository) BatchDeleteUserByIds(ids []uint) error {
+	err := common.DB.Where("id IN (?)", ids).Delete(&model.User{}).Error
+	return err
+}
+
+// 根据用户ID查询用户角色排序最小值
+func (ur UserRepository) GetUserMinRoleSortByIds(ids []uint) ([]int, error) {
+	// 根据用户ID获取用户信息
+	var userList []model.User
+	err := common.DB.Debug().Where("id IN (?)", ids).Preload("Roles").Find(&userList).Error
+	if err != nil {
+		return nil, err
+	}
+	var roleMinSortList []int
+	for _, user := range userList {
+		roles := user.Roles
+		var roleSortList []int
+		for _, role := range roles {
+			roleSortList = append(roleSortList, int(role.Sort))
+		}
+		roleMinSort := funk.MinInt(roleSortList).(int)
+		roleMinSortList = append(roleMinSortList, roleMinSort)
+	}
+	return roleMinSortList, nil
 }

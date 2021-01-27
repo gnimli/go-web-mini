@@ -39,7 +39,7 @@ func OperationLogMiddleware() gin.HandlerFunc {
 		username = user.Username
 
 		// 获取访问路径
-		path := strings.TrimPrefix(c.Request.URL.Path, "/"+config.Conf.System.UrlPathPrefix)
+		path := strings.TrimPrefix(c.FullPath(), "/"+config.Conf.System.UrlPathPrefix)
 
 		// 获取接口描述
 		apiRepository := repository.NewApiRepository()

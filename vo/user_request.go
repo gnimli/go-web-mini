@@ -28,6 +28,11 @@ type UserListRequest struct {
 	PageSize uint   `json:"pageSize" form:"pageSize"`
 }
 
+// 批量删除用户结构体
+type DeleteUserRequest struct {
+	UserIds []uint `json:"userIds" form:"userIds"`
+}
+
 // 修改密码结构体
 type ChangePwdRequest struct {
 	OldPassword string `json:"oldPassword" form:"oldPassword" validate:"required"`

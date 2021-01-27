@@ -15,12 +15,12 @@ import (
 )
 
 type IUserController interface {
-	GetUserInfo(c *gin.Context)    // 获取当前登录用户信息
-	GetUsers(c *gin.Context)       // 获取用户列表
-	ChangePwd(c *gin.Context)      // 修改密码
-	CreateUser(c *gin.Context)     // 创建用户
-	UpdateUserById(c *gin.Context) // 更新用户
-	BatchDeleteUserByIds(c *gin.Context)
+	GetUserInfo(c *gin.Context)          // 获取当前登录用户信息
+	GetUsers(c *gin.Context)             // 获取用户列表
+	ChangePwd(c *gin.Context)            // 修改密码
+	CreateUser(c *gin.Context)           // 创建用户
+	UpdateUserById(c *gin.Context)       // 更新用户
+	BatchDeleteUserByIds(c *gin.Context) //批量删除用户
 }
 
 type UserController struct {
@@ -202,7 +202,7 @@ func (uc UserController) UpdateUserById(c *gin.Context) {
 	currentRoles := ctxUser.Roles
 	// 获取当前用户角色的排序，和前端传来的角色排序做比较
 	var currentRoleSorts []int
-	// 获取当前用户ID集合
+	// 当前用户角色ID集合
 	var currentRoleIds []uint
 	for _, role := range currentRoles {
 		currentRoleSorts = append(currentRoleSorts, int(role.Sort))
@@ -293,6 +293,62 @@ func (uc UserController) UpdateUserById(c *gin.Context) {
 
 }
 
+// 批量删除用户
 func (uc UserController) BatchDeleteUserByIds(c *gin.Context) {
+	var req vo.DeleteUserRequest
+	// 参数绑定
+	if err := c.ShouldBind(&req); err != nil {
+		response.Fail(c, nil, err.Error())
+		return
+	}
+	// 参数校验
+	if err := common.Validate.Struct(&req); err != nil {
+		errStr := err.(validator.ValidationErrors)[0].Translate(common.Trans)
+		response.Fail(c, nil, errStr)
+		return
+	}
+
+	// 前端传来的用户ID
+	reqUserIds := req.UserIds
+	// 根据用户ID查询用户角色排序最小值
+	roleMinSortList, err := uc.UserRepository.GetUserMinRoleSortByIds(reqUserIds)
+	if err != nil {
+		response.Fail(c, nil, "根据用户ID查询用户角色排序最小值失败: "+err.Error())
+		return
+	}
+
+	// 获取当前用户
+	ctxUser := uc.UserRepository.GetCurrentUser(c)
+	// 获取当前用户的所有角色
+	currentRoles := ctxUser.Roles
+	// 获取当前用户角色的排序，和前端传来的角色排序做比较
+	var currentRoleSorts []int
+	for _, role := range currentRoles {
+		currentRoleSorts = append(currentRoleSorts, int(role.Sort))
+	}
+	// 当前用户角色排序最小值（最高等级角色）
+	currentRoleSortMin := funk.MinInt(currentRoleSorts).(int)
+
+	// 不能删除自己
+	if funk.Contains(reqUserIds, ctxUser.ID) {
+		response.Fail(c, nil, "用户不能删除自己")
+		return
+	}
+
+	// 不能删除比自己角色排序低(等级高)的用户
+	for _, sort := range roleMinSortList {
+		if currentRoleSortMin >= sort {
+			response.Fail(c, nil, "用户不能删除比自己角色等级高的用户")
+			return
+		}
+	}
+
+	err = uc.UserRepository.BatchDeleteUserByIds(reqUserIds)
+	if err != nil {
+		response.Fail(c, nil, "删除用户失败: "+err.Error())
+		return
+	}
+
+	response.Success(c, nil, "删除用户成功")
 
 }
