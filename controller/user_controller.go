@@ -36,7 +36,11 @@ func NewUserController() IUserController {
 
 // 获取当前登录用户信息
 func (uc UserController) GetUserInfo(c *gin.Context) {
-	user := uc.UserRepository.GetCurrentUser(c)
+	user, err := uc.UserRepository.GetCurrentUser(c)
+	if err != nil {
+		response.Fail(c, nil, "获取当前用户信息失败: "+err.Error())
+		return
+	}
 	userInfoDto := dto.ToUserInfoDto(user)
 	response.Success(c, gin.H{
 		"userInfo": userInfoDto,
@@ -83,11 +87,15 @@ func (uc UserController) ChangePwd(c *gin.Context) {
 	}
 
 	// 获取当前用户
-	user := uc.UserRepository.GetCurrentUser(c)
+	user, err := uc.UserRepository.GetCurrentUser(c)
+	if err != nil {
+		response.Fail(c, nil, err.Error())
+		return
+	}
 	// 获取用户的真实正确密码
 	correctPasswd := user.Password
 	// 判断前端请求的密码是否等于真实密码
-	err := util.ComparePasswd(correctPasswd, req.OldPassword)
+	err = util.ComparePasswd(correctPasswd, req.OldPassword)
 	if err != nil {
 		response.Fail(c, nil, "原密码有误")
 		return
@@ -115,17 +123,13 @@ func (uc UserController) CreateUser(c *gin.Context) {
 		response.Fail(c, nil, errStr)
 		return
 	}
-	// 获取当前用户
-	ctxUser := uc.UserRepository.GetCurrentUser(c)
-	// 获取当前用户的所有角色
-	currentRoles := ctxUser.Roles
-	// 获取当前用户角色的排序，和前端传来的角色排序做比较
-	var currentRoleSorts []int
-	for _, role := range currentRoles {
-		currentRoleSorts = append(currentRoleSorts, int(role.Sort))
+
+	// 当前用户角色排序最小值（最高等级角色）以及当前用户
+	currentRoleSortMin, ctxUser, err := uc.UserRepository.GetCurrentUserMinRoleSort(c)
+	if err != nil {
+		response.Fail(c, nil, err.Error())
+		return
 	}
-	// 当前用户角色排序最小值（最高等级角色）
-	currentRoleSortMin := funk.MinInt(currentRoleSorts).(int)
 
 	// 获取前端传来的用户角色id
 	reqRoleIds := req.RoleIds
@@ -141,7 +145,7 @@ func (uc UserController) CreateUser(c *gin.Context) {
 		reqRoleSorts = append(reqRoleSorts, int(role.Sort))
 	}
 	// 前端传来用户角色排序最小值（最高等级角色）
-	reqRoleSortMin := funk.MinInt(reqRoleSorts).(int)
+	reqRoleSortMin := uint(funk.MinInt(reqRoleSorts).(int))
 
 	// 当前用户的角色排序最小值 需要小于 前端传来的角色排序最小值（用户不能创建比自己等级高的或者相同等级的用户）
 	if currentRoleSortMin >= reqRoleSortMin {
@@ -197,7 +201,11 @@ func (uc UserController) UpdateUserById(c *gin.Context) {
 	}
 
 	// 获取当前用户
-	ctxUser := uc.UserRepository.GetCurrentUser(c)
+	ctxUser, err := uc.UserRepository.GetCurrentUser(c)
+	if err != nil {
+		response.Fail(c, nil, err.Error())
+		return
+	}
 	// 获取当前用户的所有角色
 	currentRoles := ctxUser.Roles
 	// 获取当前用户角色的排序，和前端传来的角色排序做比较
@@ -317,17 +325,13 @@ func (uc UserController) BatchDeleteUserByIds(c *gin.Context) {
 		return
 	}
 
-	// 获取当前用户
-	ctxUser := uc.UserRepository.GetCurrentUser(c)
-	// 获取当前用户的所有角色
-	currentRoles := ctxUser.Roles
-	// 获取当前用户角色的排序，和前端传来的角色排序做比较
-	var currentRoleSorts []int
-	for _, role := range currentRoles {
-		currentRoleSorts = append(currentRoleSorts, int(role.Sort))
+	// 当前用户角色排序最小值（最高等级角色）以及当前用户
+	minSort, ctxUser, err := uc.UserRepository.GetCurrentUserMinRoleSort(c)
+	if err != nil {
+		response.Fail(c, nil, err.Error())
+		return
 	}
-	// 当前用户角色排序最小值（最高等级角色）
-	currentRoleSortMin := funk.MinInt(currentRoleSorts).(int)
+	currentRoleSortMin := int(minSort)
 
 	// 不能删除自己
 	if funk.Contains(reqUserIds, ctxUser.ID) {

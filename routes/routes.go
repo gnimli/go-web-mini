@@ -11,6 +11,9 @@ import (
 
 // 初始化
 func InitRoutes() *gin.Engine {
+	//设置模式
+	gin.SetMode(config.Conf.System.Mode)
+
 	// 创建带有默认中间件的路由:
 	// 日志与恢复中间件
 	r := gin.Default()

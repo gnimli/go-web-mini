@@ -16,7 +16,12 @@ var checkLock sync.Mutex
 func CasbinMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ur := repository.NewUserRepository()
-		user := ur.GetCurrentUser(c)
+		user, err := ur.GetCurrentUser(c)
+		if err != nil {
+			response.Response(c, 401, 401, nil, "用户未登录")
+			c.Abort()
+			return
+		}
 		// 获得用户的全部角色
 		roles := user.Roles
 		// 获得用户全部未被禁用的角色的Keyword

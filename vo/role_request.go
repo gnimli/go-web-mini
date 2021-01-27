@@ -6,8 +6,7 @@ type CreateRoleRequest struct {
 	Keyword string `json:"keyword" form:"keyword" validate:"required"`
 	Desc    string `json:"desc" form:"desc"`
 	Status  uint   `json:"status" form:"status"`
-	Sort    uint   `json:"sort" form:"sort" validate:"required"`
-	Creator string `json:"creator" form:"creator"`
+	Sort    uint   `json:"sort" form:"sort" validate:"lte=999"`
 }
 
 // 获取用户角色结构体

@@ -15,15 +15,16 @@ import (
 )
 
 type IUserRepository interface {
-	Login(user *model.User) (*model.User, error)                   // 登录
-	GetCurrentUser(c *gin.Context) model.User                      // 获取当前登录用户信息
-	GetUserById(id uint) (model.User, error)                       // 获取单个用户
-	GetUsers(req *vo.UserListRequest) ([]model.User, int64, error) // 获取用户列表
-	ChangePwd(username string, newPasswd string) error             // 修改密码
-	CreateUser(user *model.User) error                             // 创建用户
-	UpdateUserById(id uint, user *model.User) error                // 更新用户
-	BatchDeleteUserByIds(ids []uint) error                         //批量删除
-	GetUserMinRoleSortByIds(ids []uint) ([]int, error)             //根据用户ID查询用户角色排序最小值
+	Login(user *model.User) (*model.User, error)                        // 登录
+	GetCurrentUser(c *gin.Context) (model.User, error)                  // 获取当前登录用户信息
+	GetCurrentUserMinRoleSort(c *gin.Context) (uint, model.User, error) // 获取当前用户角色排序最小值（最高等级角色）以及当前用户信息
+	GetUserById(id uint) (model.User, error)                            // 获取单个用户
+	GetUsers(req *vo.UserListRequest) ([]model.User, int64, error)      // 获取用户列表
+	ChangePwd(username string, newPasswd string) error                  // 修改密码
+	CreateUser(user *model.User) error                                  // 创建用户
+	UpdateUserById(id uint, user *model.User) error                     // 更新用户
+	BatchDeleteUserByIds(ids []uint) error                              // 批量删除
+	GetUserMinRoleSortByIds(ids []uint) ([]int, error)                  // 根据用户ID查询用户角色排序最小值
 }
 
 type UserRepository struct {
@@ -79,37 +80,62 @@ func (ur UserRepository) Login(user *model.User) (*model.User, error) {
 }
 
 // 获取当前登录用户信息
-func (ur UserRepository) GetCurrentUser(c *gin.Context) model.User {
+func (ur UserRepository) GetCurrentUser(c *gin.Context) (model.User, error) {
 	var newUser model.User
 	ctxUser, exist := c.Get("user")
 	if !exist {
-		return newUser
+		return newUser, errors.New("用户未登录")
 	}
 	u, _ := ctxUser.(model.User)
 
 	// 先查询缓存
 	cacheUser, found := userInfoCache.Get(u.Username)
 	var user model.User
+	var err error
 	if found {
 		user = cacheUser.(model.User)
+		err = nil
 	} else {
 		// 缓存中没有就查询数据库
-		user, _ = ur.GetUserById(u.ID)
+		user, err = ur.GetUserById(u.ID)
 	}
-	return user
+	return user, err
+}
+
+// 获取当前用户角色排序最小值（最高等级角色）以及当前用户信息
+func (ur UserRepository) GetCurrentUserMinRoleSort(c *gin.Context) (uint, model.User, error) {
+	// 获取当前用户
+	ctxUser, err := ur.GetCurrentUser(c)
+	if err != nil {
+		return 999, ctxUser, err
+	}
+	// 获取当前用户的所有角色
+	currentRoles := ctxUser.Roles
+	// 获取当前用户角色的排序，和前端传来的角色排序做比较
+	var currentRoleSorts []int
+	for _, role := range currentRoles {
+		currentRoleSorts = append(currentRoleSorts, int(role.Sort))
+	}
+	// 当前用户角色排序最小值（最高等级角色）
+	currentRoleSortMin := uint(funk.MinInt(currentRoleSorts).(int))
+
+	return currentRoleSortMin, ctxUser, nil
 }
 
 // 获取单个用户(正常状态)
 // 需要缓存，减少数据库访问
 func (ur UserRepository) GetUserById(id uint) (model.User, error) {
-	fmt.Println("GetUserById---查数据库")
 	var user model.User
 	err := common.DB.Where("id = ?", id).
 		Where("status = ?", 1).
 		Preload("Roles").First(&user).Error
 
-	// 缓存
-	userInfoCache.Set(user.Username, user, cache.DefaultExpiration)
+	// 查询成功就缓存
+	if err != nil {
+		userInfoCache.Delete(user.Username)
+	} else {
+		userInfoCache.Set(user.Username, user, cache.DefaultExpiration)
+	}
 
 	return user, err
 }

@@ -29,7 +29,7 @@ func InitConfig() {
 		panic(fmt.Errorf("读取应用目录失败:%s \n", err))
 	}
 
-	viper.SetConfigName("config.dev")
+	viper.SetConfigName("config")
 	viper.SetConfigType("yml")
 	viper.AddConfigPath(workDir + "./")
 	// 读取配置信息
@@ -44,8 +44,8 @@ func InitConfig() {
 }
 
 type SystemConfig struct {
+	Mode          string `mapstructure:"mode" json:"mode"`
 	UrlPathPrefix string `mapstructure:"url-path-prefix" json:"urlPathPrefix"`
-	ApiVersion    string `mapstructure:"api-version" json:"apiVersion"`
 	Port          int    `mapstructure:"port" json:"port"`
 	InitData      bool   `mapstructure:"init-data" json:"initData"`
 }

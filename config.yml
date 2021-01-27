@@ -1,9 +1,9 @@
 # delelopment
 system:
+  # 设定模式(debug/release/test,正式版改为release)
+  mode: debug
   # url前缀
   url-path-prefix: api
-  # 接口版本, 紧跟url-path-prefix后
-  api-version: v1
   # 程序监听端口
   port: 8088
   # 是否初始化数据(没有初始数据时使用, 已发布正式版改为false)
