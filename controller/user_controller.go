@@ -292,7 +292,7 @@ func (uc UserController) UpdateUserById(c *gin.Context) {
 		// 用户不能修改比自己角色等级高的或者相同等级的用户
 		// 根据path中的userIdID查询用户角色排序最小值
 		minRoleSorts, err := uc.UserRepository.GetUserMinRoleSortsByIds([]uint{uint(userId)})
-		if err != nil {
+		if err != nil || len(minRoleSorts) == 0 {
 			response.Fail(c, nil, "根据用户ID查询用户角色排序最小值失败")
 			return
 		}

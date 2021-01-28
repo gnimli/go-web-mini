@@ -18,6 +18,11 @@ type RoleListRequest struct {
 	PageSize uint   `json:"pageSize" form:"pageSize"`
 }
 
+// 批量删除角色结构体
+type DeleteRoleRequest struct {
+	RoleIds []uint `json:"roleIds" form:"roleIds"`
+}
+
 // 更新角色的菜单权限
 type UpdateRoleMenusRequest struct {
 	MenuIds []int `json:"menuIds"`

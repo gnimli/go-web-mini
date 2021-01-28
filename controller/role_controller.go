@@ -16,8 +16,8 @@ type IRoleController interface {
 	CreateRole(c *gin.Context)     // 创建角色
 	UpdateRoleById(c *gin.Context) // 修改角色
 	UpdateRoleMenusById(c *gin.Context)
-	UpdateRoleApisById(c *gin.Context)
-	BatchDeleteRoleByIds(c *gin.Context)
+	UpdateRoleApisById(c *gin.Context)   // 更新角色的权限接口
+	BatchDeleteRoleByIds(c *gin.Context) // 删除角色
 }
 
 type RoleController struct {
@@ -145,6 +145,10 @@ func (rc RoleController) UpdateRoleById(c *gin.Context) {
 		response.Fail(c, nil, err.Error())
 		return
 	}
+	if len(roles) == 0 {
+		response.Fail(c, nil, "未查询到角色信息")
+		return
+	}
 	if minSort >= roles[0].Sort {
 		response.Fail(c, nil, "不能修改比自己角色等级高或相等的角色")
 		return
@@ -177,10 +181,58 @@ func (rc RoleController) UpdateRoleMenusById(c *gin.Context) {
 	panic("implement me")
 }
 
+// 更新角色的权限接口
 func (rc RoleController) UpdateRoleApisById(c *gin.Context) {
 	panic("implement me")
 }
 
+// 删除角色
 func (rc RoleController) BatchDeleteRoleByIds(c *gin.Context) {
-	panic("implement me")
+	var req vo.DeleteRoleRequest
+	// 参数绑定
+	if err := c.ShouldBind(&req); err != nil {
+		response.Fail(c, nil, err.Error())
+		return
+	}
+	// 参数校验
+	if err := common.Validate.Struct(&req); err != nil {
+		errStr := err.(validator.ValidationErrors)[0].Translate(common.Trans)
+		response.Fail(c, nil, errStr)
+		return
+	}
+
+	// 获取当前用户最高等级角色
+	ur := repository.NewUserRepository()
+	minSort, _, err := ur.GetCurrentUserMinRoleSort(c)
+	if err != nil {
+		response.Fail(c, nil, err.Error())
+		return
+	}
+
+	// 前端传来需要删除的角色ID
+	roleIds := req.RoleIds
+	// 查询角色信息
+	roles, err := rc.RoleRepository.GetRolesByIds(roleIds)
+	if err != nil {
+		response.Fail(c, nil, "查询角色信息失败: "+err.Error())
+		return
+	}
+
+	// 不能删除比自己角色等级高或相等的角色
+	for _, role := range roles {
+		if minSort >= role.Sort {
+			response.Fail(c, nil, "不能删除比自己角色等级高或相等的角色")
+			return
+		}
+	}
+
+	// 删除角色
+	err = rc.RoleRepository.BatchDeleteRoleByIds(roleIds)
+	if err != nil {
+		response.Fail(c, nil, "删除角色失败")
+		return
+	}
+
+	response.Success(c, nil, "删除角色成功")
+
 }

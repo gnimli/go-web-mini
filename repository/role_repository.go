@@ -15,7 +15,7 @@ type IRoleRepository interface {
 	UpdateRoleById(roleId uint, role *model.Role) error            // 修改角色
 	UpdateRoleMenusById(roleId uint, menuIds vo.UpdateRoleMenusRequest) error
 	UpdateRoleApisById(roleId uint, apiIds vo.UpdateRoleApisRequest) error
-	BatchDeleteRoleByIds(roleIds []uint) error
+	BatchDeleteRoleByIds(roleIds []uint) error // 删除角色
 }
 
 type RoleRepository struct {
@@ -86,6 +86,8 @@ func (r RoleRepository) UpdateRoleApisById(roleId uint, apiIds vo.UpdateRoleApis
 	panic("implement me")
 }
 
+// 删除角色
 func (r RoleRepository) BatchDeleteRoleByIds(roleIds []uint) error {
-	panic("implement me")
+	err := common.DB.Where("id IN (?)", roleIds).Delete(&model.Role{}).Error
+	return err
 }
