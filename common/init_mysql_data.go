@@ -73,6 +73,7 @@ func InitData() {
 			Sort:      0,
 			ParentId:  0,
 			Roles:     roles[:],
+			Creator:   "系统",
 		},
 		{
 			Model:     gorm.Model{ID: 2},
@@ -84,6 +85,7 @@ func InitData() {
 			Sort:      1,
 			ParentId:  1,
 			Roles:     roles[:],
+			Creator:   "系统",
 		},
 		{
 			Model:     gorm.Model{ID: 3},
@@ -96,6 +98,7 @@ func InitData() {
 			Sort:      10,
 			ParentId:  0,
 			Roles:     roles[:2],
+			Creator:   "系统",
 		},
 		{
 			Model:     gorm.Model{ID: 4},
@@ -107,6 +110,7 @@ func InitData() {
 			Sort:      11,
 			ParentId:  3,
 			Roles:     roles[:2],
+			Creator:   "系统",
 		},
 		{
 			Model:     gorm.Model{ID: 5},
@@ -118,6 +122,7 @@ func InitData() {
 			Sort:      12,
 			ParentId:  3,
 			Roles:     roles[:2],
+			Creator:   "系统",
 		},
 		{
 			Model:     gorm.Model{ID: 6},
@@ -129,6 +134,7 @@ func InitData() {
 			Sort:      13,
 			ParentId:  3,
 			Roles:     roles[:2],
+			Creator:   "系统",
 		},
 		{
 			Model:     gorm.Model{ID: 7},
@@ -140,6 +146,7 @@ func InitData() {
 			Sort:      14,
 			ParentId:  3,
 			Roles:     roles[:2],
+			Creator:   "系统",
 		},
 	}
 	for _, menu := range menus {
@@ -167,7 +174,7 @@ func InitData() {
 			Nickname:     "管理员",
 			Introduction: "我是系统的管理员",
 			Status:       1,
-			Creator:      "",
+			Creator:      "系统",
 			Roles:        roles[:1],
 		},
 		{
@@ -179,7 +186,7 @@ func InitData() {
 			Nickname:     "明哥",
 			Introduction: "哈哈哈哈哈",
 			Status:       1,
-			Creator:      "",
+			Creator:      "系统",
 			Roles:        roles[:2],
 		},
 		{
@@ -191,7 +198,7 @@ func InitData() {
 			Nickname:     "little nike",
 			Introduction: "haha",
 			Status:       1,
-			Creator:      "",
+			Creator:      "系统",
 			Roles:        roles[2:3],
 		},
 	}
@@ -218,6 +225,7 @@ func InitData() {
 			Path:     "/base/login",
 			Category: "base",
 			Desc:     "用户登录",
+			Creator:  "系统",
 		},
 		{
 			Model:    gorm.Model{ID: 2},
@@ -225,6 +233,7 @@ func InitData() {
 			Path:     "/base/logout",
 			Category: "base",
 			Desc:     "用户登出",
+			Creator:  "系统",
 		},
 		{
 			Model:    gorm.Model{ID: 3},
@@ -232,6 +241,7 @@ func InitData() {
 			Path:     "/base/refreshToken",
 			Category: "base",
 			Desc:     "刷新JWT令牌",
+			Creator:  "系统",
 		},
 		{
 			Model:    gorm.Model{ID: 4},
@@ -239,6 +249,7 @@ func InitData() {
 			Path:     "/user/info",
 			Category: "user",
 			Desc:     "获取当前登录用户信息",
+			Creator:  "系统",
 		},
 		{
 			Model:    gorm.Model{ID: 5},
@@ -246,6 +257,7 @@ func InitData() {
 			Path:     "/user/list",
 			Category: "user",
 			Desc:     "获取用户列表",
+			Creator:  "系统",
 		},
 		{
 			Model:    gorm.Model{ID: 6},
@@ -253,6 +265,7 @@ func InitData() {
 			Path:     "/user/changePwd",
 			Category: "user",
 			Desc:     "修改用户登录密码",
+			Creator:  "系统",
 		},
 		{
 			Model:    gorm.Model{ID: 7},
@@ -260,6 +273,7 @@ func InitData() {
 			Path:     "/user/create",
 			Category: "user",
 			Desc:     "创建用户",
+			Creator:  "系统",
 		},
 		{
 			Model:    gorm.Model{ID: 8},
@@ -267,6 +281,7 @@ func InitData() {
 			Path:     "/user/update/:userId",
 			Category: "user",
 			Desc:     "更新用户",
+			Creator:  "系统",
 		},
 		{
 			Model:    gorm.Model{ID: 9},
@@ -274,6 +289,7 @@ func InitData() {
 			Path:     "/user/delete/batch",
 			Category: "user",
 			Desc:     "批量删除用户",
+			Creator:  "系统",
 		},
 		{
 			Model:    gorm.Model{ID: 10},
@@ -281,6 +297,7 @@ func InitData() {
 			Path:     "/menu/tree",
 			Category: "menu",
 			Desc:     "获取权限菜单",
+			Creator:  "系统",
 		},
 		{
 			Model:    gorm.Model{ID: 11},
@@ -288,6 +305,7 @@ func InitData() {
 			Path:     "/menu/list",
 			Category: "menu",
 			Desc:     "获取菜单列表",
+			Creator:  "系统",
 		},
 		{
 			Model:    gorm.Model{ID: 12},
@@ -295,6 +313,7 @@ func InitData() {
 			Path:     "/menu/create",
 			Category: "menu",
 			Desc:     "创建菜单",
+			Creator:  "系统",
 		},
 		{
 			Model:    gorm.Model{ID: 13},
@@ -302,6 +321,7 @@ func InitData() {
 			Path:     "/menu/update/:menuId",
 			Category: "menu",
 			Desc:     "更新菜单",
+			Creator:  "系统",
 		},
 		{
 			Model:    gorm.Model{ID: 14},
@@ -309,6 +329,7 @@ func InitData() {
 			Path:     "/menu/delete/batch",
 			Category: "menu",
 			Desc:     "批量删除菜单",
+			Creator:  "系统",
 		},
 		{
 			Model:    gorm.Model{ID: 15},
@@ -316,6 +337,7 @@ func InitData() {
 			Path:     "/role/list",
 			Category: "role",
 			Desc:     "获取角色列表",
+			Creator:  "系统",
 		},
 		{
 			Model:    gorm.Model{ID: 16},
@@ -323,6 +345,7 @@ func InitData() {
 			Path:     "/role/create",
 			Category: "role",
 			Desc:     "创建角色",
+			Creator:  "系统",
 		},
 		{
 			Model:    gorm.Model{ID: 17},
@@ -330,6 +353,7 @@ func InitData() {
 			Path:     "/role/update/:roleId",
 			Category: "role",
 			Desc:     "更新角色",
+			Creator:  "系统",
 		},
 		{
 			Model:    gorm.Model{ID: 18},
@@ -337,6 +361,7 @@ func InitData() {
 			Path:     "/role/delete/batch",
 			Category: "role",
 			Desc:     "批量删除角色",
+			Creator:  "系统",
 		},
 		{
 			Model:    gorm.Model{ID: 19},
@@ -344,6 +369,7 @@ func InitData() {
 			Path:     "/api/list",
 			Category: "api",
 			Desc:     "获取接口列表",
+			Creator:  "系统",
 		},
 		{
 			Model:    gorm.Model{ID: 20},
@@ -351,6 +377,7 @@ func InitData() {
 			Path:     "/api/create",
 			Category: "api",
 			Desc:     "创建接口",
+			Creator:  "系统",
 		},
 		{
 			Model:    gorm.Model{ID: 21},
@@ -358,6 +385,7 @@ func InitData() {
 			Path:     "/api/update/:roleId",
 			Category: "api",
 			Desc:     "更新接口",
+			Creator:  "系统",
 		},
 		{
 			Model:    gorm.Model{ID: 22},
@@ -365,6 +393,7 @@ func InitData() {
 			Path:     "/api/delete/batch",
 			Category: "api",
 			Desc:     "批量删除接口",
+			Creator:  "系统",
 		},
 		{
 			Model:    gorm.Model{ID: 23},
@@ -372,6 +401,7 @@ func InitData() {
 			Path:     "/menu/all/:roleId",
 			Category: "menu",
 			Desc:     "查询指定角色的菜单树",
+			Creator:  "系统",
 		},
 		{
 			Model:    gorm.Model{ID: 24},
@@ -379,6 +409,7 @@ func InitData() {
 			Path:     "/api/all/category/:roleId",
 			Category: "api",
 			Desc:     "查询指定角色的接口(以分类分组)",
+			Creator:  "系统",
 		},
 		{
 			Model:    gorm.Model{ID: 25},
@@ -386,6 +417,7 @@ func InitData() {
 			Path:     "/role/menus/update/:roleId",
 			Category: "role",
 			Desc:     "更新角色的权限菜单",
+			Creator:  "系统",
 		},
 		{
 			Model:    gorm.Model{ID: 26},
@@ -393,6 +425,7 @@ func InitData() {
 			Path:     "/role/apis/update/:roleId",
 			Category: "role",
 			Desc:     "更新角色的权限接口",
+			Creator:  "系统",
 		},
 		{
 			Model:    gorm.Model{ID: 27},
@@ -400,6 +433,7 @@ func InitData() {
 			Path:     "/operation/log/list",
 			Category: "operation-log",
 			Desc:     "获取操作日志列表",
+			Creator:  "系统",
 		},
 		{
 			Model:    gorm.Model{ID: 28},
@@ -407,6 +441,7 @@ func InitData() {
 			Path:     "/operation/log/delete/batch",
 			Category: "operation-log",
 			Desc:     "批量删除操作日志",
+			Creator:  "系统",
 		},
 	}
 	newApi := make([]model.Api, 0)

@@ -10,9 +10,9 @@ import (
 
 type IRoleRepository interface {
 	GetRoles(req *vo.RoleListRequest) ([]model.Role, int64, error) // 获取角色列表
-	GetRolesByIds(roleIds []uint) ([]*model.Role, error)           //根据角色ID查询角色
-	CreateRole(role *model.Role) error
-	UpdateRoleById(roleId uint, role vo.CreateRoleRequest) error
+	GetRolesByIds(roleIds []uint) ([]*model.Role, error)           // 根据角色ID查询角色
+	CreateRole(role *model.Role) error                             // 创建角色
+	UpdateRoleById(roleId uint, role *model.Role) error            // 修改角色
 	UpdateRoleMenusById(roleId uint, menuIds vo.UpdateRoleMenusRequest) error
 	UpdateRoleApisById(roleId uint, apiIds vo.UpdateRoleApisRequest) error
 	BatchDeleteRoleByIds(roleIds []uint) error
@@ -66,13 +66,16 @@ func (r RoleRepository) GetRolesByIds(roleIds []uint) ([]*model.Role, error) {
 	return list, err
 }
 
+// 创建角色
 func (r RoleRepository) CreateRole(role *model.Role) error {
 	err := common.DB.Debug().Create(role).Error
 	return err
 }
 
-func (r RoleRepository) UpdateRoleById(roleId uint, role vo.CreateRoleRequest) error {
-	panic("implement me")
+// 修改角色
+func (r RoleRepository) UpdateRoleById(roleId uint, role *model.Role) error {
+	err := common.DB.Model(&model.Role{}).Where("id = ?", roleId).Updates(role).Error
+	return err
 }
 
 func (r RoleRepository) UpdateRoleMenusById(roleId uint, menuIds vo.UpdateRoleMenusRequest) error {

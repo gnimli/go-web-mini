@@ -276,14 +276,34 @@ func (uc UserController) UpdateUserById(c *gin.Context) {
 			response.Fail(c, nil, "修改用户失败: "+err.Error())
 			return
 		}
-		// 修改成功则更新当前用户信息缓存
-		uc.UserRepository.GetUserById(uint(userId))
+		// 修改自己成功则更新当前用户信息缓存
+		// 获取最新的用户信息
+		newUser, err := uc.UserRepository.GetUserById(uint(userId))
+		if err != nil {
+			response.Fail(c, nil, "获取当前用户最新信息失败: "+err.Error())
+			return
+		}
+		uc.UserRepository.SetUserInfoCache(newUser.Username, newUser)
+
 		response.Success(c, nil, "修改用户成功")
+
 	} else {
 		// 如果是修改别人
-		// 当前用户的角色排序最小值 需要小于 前端传来的角色排序最小值（用户不能修改比自己等级高的或者相同等级的用户）
+		// 用户不能修改比自己角色等级高的或者相同等级的用户
+		// 根据path中的userIdID查询用户角色排序最小值
+		minRoleSorts, err := uc.UserRepository.GetUserMinRoleSortsByIds([]uint{uint(userId)})
+		if err != nil {
+			response.Fail(c, nil, "根据用户ID查询用户角色排序最小值失败")
+			return
+		}
+		if currentRoleSortMin >= minRoleSorts[0] {
+			response.Fail(c, nil, "用户不能修改比自己角色等级高的或者相同等级的用户")
+			return
+		}
+
+		// 用户不能把别的用户角色等级修改得比自己高或相等
 		if currentRoleSortMin >= reqRoleSortMin {
-			response.Fail(c, nil, "用户不能修改比自己等级高的或者相同等级的用户")
+			response.Fail(c, nil, "用户不能把别的用户角色等级修改得比自己高或相等")
 			return
 		}
 
@@ -319,7 +339,7 @@ func (uc UserController) BatchDeleteUserByIds(c *gin.Context) {
 	// 前端传来的用户ID
 	reqUserIds := req.UserIds
 	// 根据用户ID查询用户角色排序最小值
-	roleMinSortList, err := uc.UserRepository.GetUserMinRoleSortByIds(reqUserIds)
+	roleMinSortList, err := uc.UserRepository.GetUserMinRoleSortsByIds(reqUserIds)
 	if err != nil {
 		response.Fail(c, nil, "根据用户ID查询用户角色排序最小值失败: "+err.Error())
 		return

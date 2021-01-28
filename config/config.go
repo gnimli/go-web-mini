@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"github.com/fsnotify/fsnotify"
 	"github.com/spf13/viper"
 	"go.uber.org/zap/zapcore"
 	"os"
@@ -34,6 +35,16 @@ func InitConfig() {
 	viper.AddConfigPath(workDir + "./")
 	// 读取配置信息
 	err = viper.ReadInConfig()
+
+	// 热更新配置
+	viper.WatchConfig()
+	viper.OnConfigChange(func(e fsnotify.Event) {
+		// 将读取的配置信息保存至全局变量Conf
+		if err := viper.Unmarshal(Conf); err != nil {
+			panic(fmt.Errorf("初始化配置文件失败:%s \n", err))
+		}
+	})
+
 	if err != nil {
 		panic(fmt.Errorf("读取配置文件失败:%s \n", err))
 	}
@@ -41,6 +52,7 @@ func InitConfig() {
 	if err := viper.Unmarshal(Conf); err != nil {
 		panic(fmt.Errorf("初始化配置文件失败:%s \n", err))
 	}
+
 }
 
 type SystemConfig struct {

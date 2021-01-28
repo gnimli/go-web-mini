@@ -8,12 +8,13 @@ import (
 	"go-lim/repository"
 	"go-lim/response"
 	"go-lim/vo"
+	"strconv"
 )
 
 type IRoleController interface {
-	GetRoles(c *gin.Context)   // 获取角色列表
-	CreateRole(c *gin.Context) // 创建角色
-	UpdateRoleById(c *gin.Context)
+	GetRoles(c *gin.Context)       // 获取角色列表
+	CreateRole(c *gin.Context)     // 创建角色
+	UpdateRoleById(c *gin.Context) // 修改角色
 	UpdateRoleMenusById(c *gin.Context)
 	UpdateRoleApisById(c *gin.Context)
 	BatchDeleteRoleByIds(c *gin.Context)
@@ -104,8 +105,72 @@ func (rc RoleController) CreateRole(c *gin.Context) {
 
 }
 
+// 修改角色
 func (rc RoleController) UpdateRoleById(c *gin.Context) {
-	panic("implement me")
+	var req vo.CreateRoleRequest
+	// 参数绑定
+	if err := c.ShouldBind(&req); err != nil {
+		response.Fail(c, nil, err.Error())
+		return
+	}
+	// 参数校验
+	if err := common.Validate.Struct(&req); err != nil {
+		errStr := err.(validator.ValidationErrors)[0].Translate(common.Trans)
+		response.Fail(c, nil, errStr)
+		return
+	}
+	// 获取path中的roleId
+	roleId, _ := strconv.Atoi(c.Param("roleId"))
+	if roleId <= 0 {
+		response.Fail(c, nil, "角色ID不正确")
+		return
+	}
+
+	if req.Sort == 0 {
+		req.Sort = 999
+	}
+
+	// 当前用户角色排序最小值（最高等级角色）以及当前用户
+	uc := repository.NewUserRepository()
+	minSort, _, err := uc.GetCurrentUserMinRoleSort(c)
+	if err != nil {
+		response.Fail(c, nil, err.Error())
+		return
+	}
+
+	// 不能修改比自己角色等级高或相等的角色
+	// 根据path中的角色ID查询该角色信息
+	roles, err := rc.RoleRepository.GetRolesByIds([]uint{uint(roleId)})
+	if err != nil {
+		response.Fail(c, nil, err.Error())
+		return
+	}
+	if minSort >= roles[0].Sort {
+		response.Fail(c, nil, "不能修改比自己角色等级高或相等的角色")
+		return
+	}
+
+	// 不能把角色等级修改得比当前用户的等级高
+	if minSort >= req.Sort {
+		response.Fail(c, nil, "不能把角色等级修改得比当前用户的等级高或相同")
+		return
+	}
+
+	role := model.Role{
+		Name:    req.Name,
+		Keyword: req.Keyword,
+		Desc:    req.Desc,
+		Status:  req.Status,
+		Sort:    req.Sort,
+	}
+
+	// 修改角色
+	err = rc.RoleRepository.UpdateRoleById(uint(roleId), &role)
+	if err != nil {
+		response.Fail(c, nil, "修改角色失败: "+err.Error())
+		return
+	}
+	response.Success(c, nil, "修改角色成功")
 }
 
 func (rc RoleController) UpdateRoleMenusById(c *gin.Context) {
