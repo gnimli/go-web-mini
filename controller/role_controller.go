@@ -174,6 +174,48 @@ func (rc RoleController) UpdateRoleById(c *gin.Context) {
 		response.Fail(c, nil, "修改角色失败: "+err.Error())
 		return
 	}
+
+	// 如果修改成功，且修改了角色的keyword, 则更新casbin中policy
+	if req.Keyword != roles[0].Keyword {
+		// 获取policy
+		rolePolicies := common.CasbinEnforcer.GetFilteredPolicy(0, roles[0].Keyword)
+		rolePoliciesCopy := make([][]string, 0)
+		// 替换keyword
+		for _, policy := range rolePolicies {
+			policyCopy := make([]string, len(policy))
+			copy(policyCopy, policy)
+			rolePoliciesCopy = append(rolePoliciesCopy, policyCopy)
+			policy[0] = req.Keyword
+		}
+
+		//gormadapter未实现UpdatePolicies方法，等gorm更新---
+		//isUpdated, _ := common.CasbinEnforcer.UpdatePolicies(rolePoliciesCopy, rolePolicies)
+		//if !isUpdated {
+		//	response.Fail(c, nil, "修改角色成功，但角色关键字关联的权限接口更新失败！")
+		//	return
+		//}
+
+		// 这里需要先新增再删除（先删除再增加会出错）
+		isAdded, _ := common.CasbinEnforcer.AddPolicies(rolePolicies)
+		if !isAdded {
+			response.Fail(c, nil, "修改角色成功，但角色关键字关联的权限接口更新失败")
+			return
+		}
+		isRemoved, _ := common.CasbinEnforcer.RemovePolicies(rolePoliciesCopy)
+		if !isRemoved {
+			response.Fail(c, nil, "修改角色成功，但角色关键字关联的权限接口更新失败")
+			return
+		}
+		err := common.CasbinEnforcer.LoadPolicy()
+		if err != nil {
+			response.Fail(c, nil, "修改角色成功，但角色关键字关联的权限接口加载失败")
+			return
+		}
+
+	}
+
+	// 修改角色成功可以更新用户信息缓存，但是这里没有更新，casbin中间件会拦截非法操作
+
 	response.Success(c, nil, "修改角色成功")
 }
 
@@ -230,7 +272,7 @@ func (rc RoleController) UpdateRoleApisById(c *gin.Context) {
 	// 不能把角色的权限接口设置的比当前用户所拥有的权限接口多
 	// 获取当前用户所拥有的权限接口
 
-	// 前端传来最新的ApiID集合（这里采用先全部删除之前的，在全部添加最新的方法，暴力！）
+	// 前端传来最新的ApiID集合（这里采用先全部删除之前的，再全部添加最新的方法）
 
 }
 
@@ -284,6 +326,8 @@ func (rc RoleController) BatchDeleteRoleByIds(c *gin.Context) {
 		response.Fail(c, nil, "删除角色失败")
 		return
 	}
+
+	// 删除角色成功可以更新用户信息缓存，但是这里没有更新，casbin中间件会拦截非法操作
 
 	response.Success(c, nil, "删除角色成功")
 

@@ -199,6 +199,18 @@ func InitData() {
 			Introduction: "haha",
 			Status:       1,
 			Creator:      "系统",
+			Roles:        roles[1:2],
+		},
+		{
+			Model:        gorm.Model{ID: 4},
+			Username:     "bob",
+			Password:     util.GenPasswd("123456"),
+			Mobile:       "15555555555",
+			Avatar:       "",
+			Nickname:     "little bob",
+			Introduction: "hei",
+			Status:       1,
+			Creator:      "系统",
 			Roles:        roles[2:3],
 		},
 	}
