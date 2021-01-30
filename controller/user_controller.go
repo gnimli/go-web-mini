@@ -140,6 +140,10 @@ func (uc UserController) CreateUser(c *gin.Context) {
 		response.Fail(c, nil, "根据角色ID查询角色信息失败: "+err.Error())
 		return
 	}
+	if len(roles) == 0 {
+		response.Fail(c, nil, "未查询到角色信息")
+		return
+	}
 	var reqRoleSorts []int
 	for _, role := range roles {
 		reqRoleSorts = append(reqRoleSorts, int(role.Sort))
@@ -200,6 +204,13 @@ func (uc UserController) UpdateUserById(c *gin.Context) {
 		return
 	}
 
+	// 根据path中的userId获取用户信息
+	oldUser, err := uc.UserRepository.GetUserById(uint(userId))
+	if err != nil {
+		response.Fail(c, nil, "获取需要修改的用户信息失败: "+err.Error())
+		return
+	}
+
 	// 获取当前用户
 	ctxUser, err := uc.UserRepository.GetCurrentUser(c)
 	if err != nil {
@@ -228,6 +239,10 @@ func (uc UserController) UpdateUserById(c *gin.Context) {
 		response.Fail(c, nil, "根据角色ID查询角色信息失败: "+err.Error())
 		return
 	}
+	if len(roles) == 0 {
+		response.Fail(c, nil, "未查询到角色信息")
+		return
+	}
 	var reqRoleSorts []int
 	for _, role := range roles {
 		reqRoleSorts = append(reqRoleSorts, int(role.Sort))
@@ -236,6 +251,7 @@ func (uc UserController) UpdateUserById(c *gin.Context) {
 	reqRoleSortMin := funk.MinInt(reqRoleSorts).(int)
 
 	user := model.User{
+		Model:        oldUser.Model,
 		Username:     req.Username,
 		Password:     "",
 		Mobile:       req.Mobile,
@@ -270,23 +286,6 @@ func (uc UserController) UpdateUserById(c *gin.Context) {
 		// 密码赋值
 		user.Password = ctxUser.Password
 
-		// 修改用户
-		err = uc.UserRepository.UpdateUserById(uint(userId), &user)
-		if err != nil {
-			response.Fail(c, nil, "修改用户失败: "+err.Error())
-			return
-		}
-		// 修改自己成功则更新当前用户信息缓存
-		// 获取最新的用户信息
-		newUser, err := uc.UserRepository.GetUserById(uint(userId))
-		if err != nil {
-			response.Fail(c, nil, "获取当前用户最新信息失败: "+err.Error())
-			return
-		}
-		uc.UserRepository.SetUserInfoCache(newUser.Username, newUser)
-
-		response.Success(c, nil, "修改用户成功")
-
 	} else {
 		// 如果是修改别人
 		// 用户不能修改比自己角色等级高的或者相同等级的用户
@@ -308,16 +307,20 @@ func (uc UserController) UpdateUserById(c *gin.Context) {
 		}
 
 		// 密码赋值
+		if req.Password == "" {
+			req.Password = "123456"
+		}
 		user.Password = util.GenPasswd(req.Password)
 
-		// 修改用户
-		err = uc.UserRepository.UpdateUserById(uint(userId), &user)
-		if err != nil {
-			response.Fail(c, nil, "修改用户失败: "+err.Error())
-			return
-		}
-		response.Success(c, nil, "修改用户成功")
 	}
+
+	// 修改用户
+	err = uc.UserRepository.UpdateUserById(uint(userId), &user)
+	if err != nil {
+		response.Fail(c, nil, "修改用户失败: "+err.Error())
+		return
+	}
+	response.Success(c, nil, "修改用户成功")
 
 }
 
@@ -340,8 +343,8 @@ func (uc UserController) BatchDeleteUserByIds(c *gin.Context) {
 	reqUserIds := req.UserIds
 	// 根据用户ID查询用户角色排序最小值
 	roleMinSortList, err := uc.UserRepository.GetUserMinRoleSortsByIds(reqUserIds)
-	if err != nil {
-		response.Fail(c, nil, "根据用户ID查询用户角色排序最小值失败: "+err.Error())
+	if err != nil || len(roleMinSortList) == 0 {
+		response.Fail(c, nil, "根据用户ID查询用户角色排序最小值失败")
 		return
 	}
 

@@ -133,14 +133,11 @@ func (ur UserRepository) GetCurrentUserMinRoleSort(c *gin.Context) (uint, model.
 	return currentRoleSortMin, ctxUser, nil
 }
 
-// 获取单个用户(正常状态)
+// 获取单个用户
 func (ur UserRepository) GetUserById(id uint) (model.User, error) {
 	fmt.Println("GetUserById---")
 	var user model.User
-	err := common.DB.Where("id = ?", id).
-		Where("status = ?", 1).
-		Preload("Roles").First(&user).Error
-
+	err := common.DB.Where("id = ?", id).Preload("Roles").First(&user).Error
 	return user, err
 }
 
@@ -212,13 +209,32 @@ func (ur UserRepository) CreateUser(user *model.User) error {
 
 // 更新用户
 func (ur UserRepository) UpdateUserById(id uint, user *model.User) error {
-	err := common.DB.Model(&model.User{}).Where("id = ?", id).Updates(user).Error
+	err := common.DB.Debug().Model(user).Association("Roles").Replace(user.Roles)
+	// 如果修改成功就更新用户信息缓存
+	userInfoCache.Set(user.Username, *user, cache.DefaultExpiration)
 	return err
 }
 
 // 批量删除
 func (ur UserRepository) BatchDeleteUserByIds(ids []uint) error {
-	err := common.DB.Where("id IN (?)", ids).Delete(&model.User{}).Error
+	// 用户和角色存在多对多关联关系
+	var users []model.User
+	for _, id := range ids {
+		// 根据ID查询用户
+		user, err := ur.GetUserById(id)
+		if err != nil {
+			return errors.New(fmt.Sprintf("未查询到ID为%d的用户", id))
+		}
+		users = append(users, user)
+	}
+
+	err := common.DB.Debug().Select("Roles").Delete(&users).Error
+	// 删除用户成功，则删除用户信息缓存
+	if err == nil {
+		for _, user := range users {
+			userInfoCache.Delete(user.Username)
+		}
+	}
 	return err
 }
 
@@ -226,9 +242,12 @@ func (ur UserRepository) BatchDeleteUserByIds(ids []uint) error {
 func (ur UserRepository) GetUserMinRoleSortsByIds(ids []uint) ([]int, error) {
 	// 根据用户ID获取用户信息
 	var userList []model.User
-	err := common.DB.Debug().Where("id IN (?)", ids).Preload("Roles").Find(&userList).Error
+	err := common.DB.Where("id IN (?)", ids).Preload("Roles").Find(&userList).Error
 	if err != nil {
-		return nil, err
+		return []int{}, err
+	}
+	if len(userList) == 0 {
+		return []int{}, errors.New("未查询到任何用户信息")
 	}
 	var roleMinSortList []int
 	for _, user := range userList {

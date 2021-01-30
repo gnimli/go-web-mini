@@ -183,7 +183,55 @@ func (rc RoleController) UpdateRoleMenusById(c *gin.Context) {
 
 // 更新角色的权限接口
 func (rc RoleController) UpdateRoleApisById(c *gin.Context) {
-	panic("implement me")
+	var req vo.UpdateRoleApisRequest
+	// 参数绑定
+	if err := c.ShouldBind(&req); err != nil {
+		response.Fail(c, nil, err.Error())
+		return
+	}
+	// 参数校验
+	if err := common.Validate.Struct(&req); err != nil {
+		errStr := err.(validator.ValidationErrors)[0].Translate(common.Trans)
+		response.Fail(c, nil, errStr)
+		return
+	}
+
+	// 获取path中的roleId
+	roleId, _ := strconv.Atoi(c.Param("roleId"))
+	if roleId <= 0 {
+		response.Fail(c, nil, "角色ID不正确")
+		return
+	}
+	// 根据path中的角色ID查询该角色信息
+	roles, err := rc.RoleRepository.GetRolesByIds([]uint{uint(roleId)})
+	if err != nil {
+		response.Fail(c, nil, err.Error())
+		return
+	}
+	if len(roles) == 0 {
+		response.Fail(c, nil, "未查询到角色信息")
+		return
+	}
+
+	// 当前用户角色排序最小值（最高等级角色）以及当前用户
+	ur := repository.NewUserRepository()
+	minSort, _, err := ur.GetCurrentUserMinRoleSort(c)
+	if err != nil {
+		response.Fail(c, nil, err.Error())
+		return
+	}
+
+	// 不能修改比自己角色等级高或相等角色的权限接口
+	if minSort >= roles[0].Sort {
+		response.Fail(c, nil, "不能修改比自己角色等级高或相等角色的权限接口")
+		return
+	}
+
+	// 不能把角色的权限接口设置的比当前用户所拥有的权限接口多
+	// 获取当前用户所拥有的权限接口
+
+	// 前端传来最新的ApiID集合（这里采用先全部删除之前的，在全部添加最新的方法，暴力！）
+
 }
 
 // 删除角色
@@ -215,6 +263,10 @@ func (rc RoleController) BatchDeleteRoleByIds(c *gin.Context) {
 	roles, err := rc.RoleRepository.GetRolesByIds(roleIds)
 	if err != nil {
 		response.Fail(c, nil, "查询角色信息失败: "+err.Error())
+		return
+	}
+	if len(roles) == 0 {
+		response.Fail(c, nil, "未查询到角色信息")
 		return
 	}
 

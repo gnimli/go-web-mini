@@ -36,8 +36,8 @@ func InitMysql() {
 	)
 	//Log.Info("数据库连接DSN: ", showDsn)
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{
-		//// 禁用外键(指定外键时不会在mysql创建真实的外键约束)
-		//DisableForeignKeyConstraintWhenMigrating: true,
+		// 禁用外键(指定外键时不会在mysql创建真实的外键约束)
+		DisableForeignKeyConstraintWhenMigrating: true,
 		//// 指定表前缀
 		//NamingStrategy: schema.NamingStrategy{
 		//	TablePrefix: config.Conf.Mysql.TablePrefix + "_",

@@ -22,6 +22,11 @@ func CasbinMiddleware() gin.HandlerFunc {
 			c.Abort()
 			return
 		}
+		if user.Status != 1 {
+			response.Response(c, 401, 401, nil, "当前用户已被禁用")
+			c.Abort()
+			return
+		}
 		// 获得用户的全部角色
 		roles := user.Roles
 		// 获得用户全部未被禁用的角色的Keyword
