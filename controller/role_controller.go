@@ -1,8 +1,10 @@
 package controller
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
+	"github.com/thoas/go-funk"
 	"go-lim/common"
 	"go-lim/model"
 	"go-lim/repository"
@@ -131,8 +133,8 @@ func (rc RoleController) UpdateRoleById(c *gin.Context) {
 	}
 
 	// 当前用户角色排序最小值（最高等级角色）以及当前用户
-	uc := repository.NewUserRepository()
-	minSort, _, err := uc.GetCurrentUserMinRoleSort(c)
+	ur := repository.NewUserRepository()
+	minSort, _, err := ur.GetCurrentUserMinRoleSort(c)
 	if err != nil {
 		response.Fail(c, nil, err.Error())
 		return
@@ -208,13 +210,17 @@ func (rc RoleController) UpdateRoleById(c *gin.Context) {
 		}
 		err := common.CasbinEnforcer.LoadPolicy()
 		if err != nil {
-			response.Fail(c, nil, "修改角色成功，但角色关键字关联的权限接口加载失败")
+			response.Fail(c, nil, "修改角色成功，但角色关键字关联角色的权限接口策略加载失败")
 			return
 		}
 
 	}
 
-	// 修改角色成功可以更新用户信息缓存，但是这里没有更新，casbin中间件会拦截非法操作
+	// 修改角色成功处理用户信息缓存有两种做法:（这里使用第二种方法，因为一个角色下用户数量可能很多，第二种方法可以分散数据库压力）
+	// 1.可以帮助用户更新拥有该角色的用户信息缓存,使用下面方法
+	// err = ur.UpdateUserInfoCacheByRoleId(uint(roleId))
+	// 2.直接清理缓存，让活跃的用户自己重新缓存最新用户信息
+	ur.ClearUserInfoCache()
 
 	response.Success(c, nil, "修改角色成功")
 }
@@ -257,7 +263,7 @@ func (rc RoleController) UpdateRoleApisById(c *gin.Context) {
 
 	// 当前用户角色排序最小值（最高等级角色）以及当前用户
 	ur := repository.NewUserRepository()
-	minSort, _, err := ur.GetCurrentUserMinRoleSort(c)
+	minSort, ctxUser, err := ur.GetCurrentUserMinRoleSort(c)
 	if err != nil {
 		response.Fail(c, nil, err.Error())
 		return
@@ -269,10 +275,67 @@ func (rc RoleController) UpdateRoleApisById(c *gin.Context) {
 		return
 	}
 
-	// 不能把角色的权限接口设置的比当前用户所拥有的权限接口多
 	// 获取当前用户所拥有的权限接口
+	ctxRoles := ctxUser.Roles
+	ctxRolesPolicies := make([][]string, 0)
+	for _, role := range ctxRoles {
+		policy := common.CasbinEnforcer.GetFilteredPolicy(0, role.Keyword)
+		ctxRolesPolicies = append(ctxRolesPolicies, policy...)
+	}
+	// 得到path中的角色ID对应角色能够设置的权限接口集合
+	for _, policy := range ctxRolesPolicies {
+		policy[0] = roles[0].Keyword
+	}
 
-	// 前端传来最新的ApiID集合（这里采用先全部删除之前的，再全部添加最新的方法）
+	// 前端传来最新的ApiID集合
+	apiIds := req.ApiIds
+	// 根据apiID获取接口详情
+	ar := repository.NewApiRepository()
+	apis, err := ar.GetApisById(apiIds)
+	if err != nil {
+		response.Fail(c, nil, "根据接口ID获取接口信息失败")
+		return
+	}
+	if len(apis) == 0 {
+		response.Fail(c, nil, "根据接口ID未获取到接口信息")
+		return
+	}
+	// 生成前端想要设置的角色policies
+	reqRolePolicies := make([][]string, 0)
+	for _, api := range apis {
+		reqRolePolicies = append(reqRolePolicies, []string{
+			roles[0].Keyword, api.Path, api.Method,
+		})
+	}
+
+	// 不能把角色的权限接口设置的比当前用户所拥有的权限接口多
+	for _, reqPolicy := range reqRolePolicies {
+		if !funk.Contains(ctxRolesPolicies, reqPolicy) {
+			response.Fail(c, nil, fmt.Sprintf("无权设置路径为%s,请求方式为%s的接口", reqPolicy[1], reqPolicy[2]))
+			return
+		}
+	}
+
+	// 更新角色的权限接口 （先全部删除再新增）
+	// 先获取path中的角色ID对应角色已有的police(需要先删除的)
+	rmPolicies := common.CasbinEnforcer.GetFilteredPolicy(0, roles[0].Keyword)
+	isRemoved, _ := common.CasbinEnforcer.RemovePolicies(rmPolicies)
+	if !isRemoved {
+		response.Fail(c, nil, "更新角色的权限接口失败")
+		return
+	}
+	isAdded, _ := common.CasbinEnforcer.AddPolicies(reqRolePolicies)
+	if !isAdded {
+		response.Fail(c, nil, "更新角色的权限接口失败")
+		return
+	}
+	err = common.CasbinEnforcer.LoadPolicy()
+	if err != nil {
+		response.Fail(c, nil, "更新角色的权限接口成功，角色的权限接口策略加载失败")
+		return
+	}
+
+	response.Success(c, nil, "更新角色的权限接口成功")
 
 }
 
@@ -327,8 +390,8 @@ func (rc RoleController) BatchDeleteRoleByIds(c *gin.Context) {
 		return
 	}
 
-	// 删除角色成功可以更新用户信息缓存，但是这里没有更新，casbin中间件会拦截非法操作
-
+	// 删除角色成功直接清理缓存，让活跃的用户自己重新缓存最新用户信息
+	ur.ClearUserInfoCache()
 	response.Success(c, nil, "删除角色成功")
 
 }

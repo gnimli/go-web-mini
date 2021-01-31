@@ -40,16 +40,18 @@ func OperationLogMiddleware() gin.HandlerFunc {
 
 		// 获取访问路径
 		path := strings.TrimPrefix(c.FullPath(), "/"+config.Conf.System.UrlPathPrefix)
+		// 请求方式
+		method := c.Request.Method
 
 		// 获取接口描述
 		apiRepository := repository.NewApiRepository()
-		apiDesc, _ := apiRepository.GetApiDescByPath(path)
+		apiDesc, _ := apiRepository.GetApiDescByPath(path, method)
 
 		operationLog := model.OperationLog{
 			Username:   username,
 			Ip:         c.ClientIP(),
 			IpLocation: "",
-			Method:     c.Request.Method,
+			Method:     method,
 			Path:       path,
 			Desc:       apiDesc,
 			Status:     c.Writer.Status(),

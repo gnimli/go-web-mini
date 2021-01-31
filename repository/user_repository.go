@@ -29,6 +29,8 @@ type IUserRepository interface {
 	GetUserMinRoleSortsByIds(ids []uint) ([]int, error)                 // 根据用户ID查询用户角色排序最小值
 
 	SetUserInfoCache(username string, user model.User) // 设置用户信息缓存
+	UpdateUserInfoCacheByRoleId(roleId uint) error     // 根据角色ID更新拥有该角色的用户信息缓存
+	ClearUserInfoCache()                               //清理所有用户信息缓存
 }
 
 type UserRepository struct {
@@ -211,7 +213,9 @@ func (ur UserRepository) CreateUser(user *model.User) error {
 func (ur UserRepository) UpdateUserById(id uint, user *model.User) error {
 	err := common.DB.Debug().Model(user).Association("Roles").Replace(user.Roles)
 	// 如果修改成功就更新用户信息缓存
-	userInfoCache.Set(user.Username, *user, cache.DefaultExpiration)
+	if err == nil {
+		userInfoCache.Set(user.Username, *user, cache.DefaultExpiration)
+	}
 	return err
 }
 
@@ -265,4 +269,34 @@ func (ur UserRepository) GetUserMinRoleSortsByIds(ids []uint) ([]int, error) {
 // 设置用户信息缓存
 func (ur UserRepository) SetUserInfoCache(username string, user model.User) {
 	userInfoCache.Set(username, user, cache.DefaultExpiration)
+}
+
+// 根据角色ID更新拥有该角色的用户信息缓存
+func (ur UserRepository) UpdateUserInfoCacheByRoleId(roleId uint) error {
+
+	var role model.Role
+	err := common.DB.Where("id = ?", roleId).Preload("Users").First(&role).Error
+	if err != nil {
+		return errors.New("根据角色ID角色信息失败")
+	}
+
+	users := role.Users
+	if len(users) == 0 {
+		return errors.New("根据角色ID未查询到拥有该角色的用户")
+	}
+
+	// 更新用户信息缓存
+	for _, user := range users {
+		_, found := userInfoCache.Get(user.Username)
+		if found {
+			userInfoCache.Set(user.Username, *user, cache.DefaultExpiration)
+		}
+	}
+
+	return err
+}
+
+//清理所有用户信息缓存
+func (ur UserRepository) ClearUserInfoCache() {
+	userInfoCache.Flush()
 }

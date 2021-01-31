@@ -25,10 +25,10 @@ type DeleteRoleRequest struct {
 
 // 更新角色的菜单权限
 type UpdateRoleMenusRequest struct {
-	MenuIds []int `json:"menuIds"`
+	MenuIds []uint `json:"menuIds" form:"menuIds"`
 }
 
 // 更新角色的API权限
 type UpdateRoleApisRequest struct {
-	ApiIds []int `json:"apiIds"`
+	ApiIds []uint `json:"apiIds" form:"apiIds"`
 }
