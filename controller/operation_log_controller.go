@@ -38,7 +38,7 @@ func (oc OperationLogController) GetOperationLogs(c *gin.Context) {
 		response.Fail(c, nil, errStr)
 		return
 	}
-	// 查询
+	// 获取
 	logs, total, err := oc.operationLogRepository.GetOperationLogs(&req)
 	if err != nil {
 		response.Fail(c, nil, "获取操作日志列表失败: "+err.Error())

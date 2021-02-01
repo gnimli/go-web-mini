@@ -34,7 +34,7 @@ type UsersDto struct {
 	Creator      string `json:"creator"`
 }
 
-func ToUsersDto(userList []model.User) []UsersDto {
+func ToUsersDto(userList []*model.User) []UsersDto {
 	var users []UsersDto
 	for _, user := range userList {
 		userDto := UsersDto{

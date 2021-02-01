@@ -6,11 +6,11 @@ import (
 )
 
 type IMenuRepository interface {
-	// 查询当前用户菜单树
+	// 获取当前用户菜单树
 	GetMenuTree(roleId uint) (*[]model.Menu, error)
-	// 查询指定角色的菜单树
+	// 获取指定角色的菜单树
 	GetAllMenuByRoleId(roleId uint) (*[]model.Menu, error)
-	// 查询所有菜单
+	// 获取所有菜单
 	GetMenus() (*[]model.Menu, error)
 	// 创建菜单
 	CreateMenu(menu vo.CreateMenuRequest) error

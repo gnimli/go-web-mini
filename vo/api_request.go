@@ -16,7 +16,17 @@ type CreateApiRequest struct {
 	Path     string `json:"path" form:"path" validate:"required"`
 	Category string `json:"category" form:"category" validate:"required"`
 	Desc     string `json:"desc" form:"desc"`
-	//Title    string `json:"title"`
-	Creator string `json:"creator" form:"creator"`
-	RoleIds []uint `json:"roleIds" form:"roleIds"` // 绑定可以访问该接口的角色
+}
+
+// 更新接口结构体
+type UpdateApiRequest struct {
+	Method   string `json:"method" form:"method"`
+	Path     string `json:"path" form:"path"`
+	Category string `json:"category" form:"category"`
+	Desc     string `json:"desc" form:"desc"`
+}
+
+// 批量删除接口结构体
+type DeleteApiRequest struct {
+	ApiIds []uint `json:"apiIds" form:"apiIds"`
 }

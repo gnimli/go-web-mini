@@ -16,27 +16,27 @@ import (
 
 type IUserRepository interface {
 	Login(user *model.User) (*model.User, error)       // 登录
-	ChangePwd(username string, newPasswd string) error // 修改密码
+	ChangePwd(username string, newPasswd string) error // 更新密码
 
-	CreateUser(user *model.User) error                             // 创建用户
-	GetUserById(id uint) (model.User, error)                       // 获取单个用户
-	GetUsers(req *vo.UserListRequest) ([]model.User, int64, error) // 获取用户列表
-	UpdateUserById(id uint, user *model.User) error                // 更新用户
-	BatchDeleteUserByIds(ids []uint) error                         // 批量删除
+	CreateUser(user *model.User) error                              // 创建用户
+	GetUserById(id uint) (model.User, error)                        // 获取单个用户
+	GetUsers(req *vo.UserListRequest) ([]*model.User, int64, error) // 获取用户列表
+	UpdateUserById(id uint, user *model.User) error                 // 更新用户
+	BatchDeleteUserByIds(ids []uint) error                          // 批量删除
 
 	GetCurrentUser(c *gin.Context) (model.User, error)                  // 获取当前登录用户信息
 	GetCurrentUserMinRoleSort(c *gin.Context) (uint, model.User, error) // 获取当前用户角色排序最小值（最高等级角色）以及当前用户信息
-	GetUserMinRoleSortsByIds(ids []uint) ([]int, error)                 // 根据用户ID查询用户角色排序最小值
+	GetUserMinRoleSortsByIds(ids []uint) ([]int, error)                 // 根据用户ID获取用户角色排序最小值
 
 	SetUserInfoCache(username string, user model.User) // 设置用户信息缓存
 	UpdateUserInfoCacheByRoleId(roleId uint) error     // 根据角色ID更新拥有该角色的用户信息缓存
-	ClearUserInfoCache()                               //清理所有用户信息缓存
+	ClearUserInfoCache()                               // 清理所有用户信息缓存
 }
 
 type UserRepository struct {
 }
 
-// 当前用户信息缓存，避免频繁查询数据库
+// 当前用户信息缓存，避免频繁获取数据库
 var userInfoCache = cache.New(24*time.Hour, 48*time.Hour)
 
 // UserRepository构造函数
@@ -46,7 +46,7 @@ func NewUserRepository() IUserRepository {
 
 // 登录
 func (ur UserRepository) Login(user *model.User) (*model.User, error) {
-	// 根据用户名查询用户(正常状态:用户状态正常)
+	// 根据用户名获取用户(正常状态:用户状态正常)
 	var firstUser model.User
 	err := common.DB.
 		Where("username = ?", user.Username).
@@ -95,7 +95,7 @@ func (ur UserRepository) GetCurrentUser(c *gin.Context) (model.User, error) {
 	}
 	u, _ := ctxUser.(model.User)
 
-	// 先查询缓存
+	// 先获取缓存
 	cacheUser, found := userInfoCache.Get(u.Username)
 	var user model.User
 	var err error
@@ -103,9 +103,9 @@ func (ur UserRepository) GetCurrentUser(c *gin.Context) (model.User, error) {
 		user = cacheUser.(model.User)
 		err = nil
 	} else {
-		// 缓存中没有就查询数据库
+		// 缓存中没有就获取数据库
 		user, err = ur.GetUserById(u.ID)
-		// 查询成功就缓存
+		// 获取成功就缓存
 		if err != nil {
 			userInfoCache.Delete(u.Username)
 		} else {
@@ -144,8 +144,8 @@ func (ur UserRepository) GetUserById(id uint) (model.User, error) {
 }
 
 // 获取用户列表
-func (ur UserRepository) GetUsers(req *vo.UserListRequest) ([]model.User, int64, error) {
-	var list []model.User
+func (ur UserRepository) GetUsers(req *vo.UserListRequest) ([]*model.User, int64, error) {
+	var list []*model.User
 	db := common.DB.Model(&model.User{}).Order("created_at DESC")
 
 	username := strings.TrimSpace(req.Username)
@@ -181,11 +181,11 @@ func (ur UserRepository) GetUsers(req *vo.UserListRequest) ([]model.User, int64,
 	return list, total, err
 }
 
-// 修改密码
+// 更新密码
 func (ur UserRepository) ChangePwd(username string, hashNewPasswd string) error {
 	err := common.DB.Model(&model.User{}).Where("username = ?", username).Update("password", hashNewPasswd).Error
-	// 如果修改密码成功，则更新当前用户信息缓存
-	// 先查询缓存
+	// 如果更新密码成功，则更新当前用户信息缓存
+	// 先获取缓存
 	cacheUser, found := userInfoCache.Get(username)
 	if err == nil {
 		if found {
@@ -193,7 +193,7 @@ func (ur UserRepository) ChangePwd(username string, hashNewPasswd string) error 
 			user.Password = hashNewPasswd
 			userInfoCache.Set(username, user, cache.DefaultExpiration)
 		} else {
-			// 没有缓存就查询用户信息缓存
+			// 没有缓存就获取用户信息缓存
 			var user model.User
 			common.DB.Where("username = ?", username).First(&user)
 			userInfoCache.Set(username, user, cache.DefaultExpiration)
@@ -212,7 +212,7 @@ func (ur UserRepository) CreateUser(user *model.User) error {
 // 更新用户
 func (ur UserRepository) UpdateUserById(id uint, user *model.User) error {
 	err := common.DB.Debug().Model(user).Association("Roles").Replace(user.Roles)
-	// 如果修改成功就更新用户信息缓存
+	// 如果更新成功就更新用户信息缓存
 	if err == nil {
 		userInfoCache.Set(user.Username, *user, cache.DefaultExpiration)
 	}
@@ -224,10 +224,10 @@ func (ur UserRepository) BatchDeleteUserByIds(ids []uint) error {
 	// 用户和角色存在多对多关联关系
 	var users []model.User
 	for _, id := range ids {
-		// 根据ID查询用户
+		// 根据ID获取用户
 		user, err := ur.GetUserById(id)
 		if err != nil {
-			return errors.New(fmt.Sprintf("未查询到ID为%d的用户", id))
+			return errors.New(fmt.Sprintf("未获取到ID为%d的用户", id))
 		}
 		users = append(users, user)
 	}
@@ -242,7 +242,7 @@ func (ur UserRepository) BatchDeleteUserByIds(ids []uint) error {
 	return err
 }
 
-// 根据用户ID查询用户角色排序最小值
+// 根据用户ID获取用户角色排序最小值
 func (ur UserRepository) GetUserMinRoleSortsByIds(ids []uint) ([]int, error) {
 	// 根据用户ID获取用户信息
 	var userList []model.User
@@ -251,7 +251,7 @@ func (ur UserRepository) GetUserMinRoleSortsByIds(ids []uint) ([]int, error) {
 		return []int{}, err
 	}
 	if len(userList) == 0 {
-		return []int{}, errors.New("未查询到任何用户信息")
+		return []int{}, errors.New("未获取到任何用户信息")
 	}
 	var roleMinSortList []int
 	for _, user := range userList {
@@ -282,7 +282,7 @@ func (ur UserRepository) UpdateUserInfoCacheByRoleId(roleId uint) error {
 
 	users := role.Users
 	if len(users) == 0 {
-		return errors.New("根据角色ID未查询到拥有该角色的用户")
+		return errors.New("根据角色ID未获取到拥有该角色的用户")
 	}
 
 	// 更新用户信息缓存

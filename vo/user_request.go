@@ -33,7 +33,7 @@ type DeleteUserRequest struct {
 	UserIds []uint `json:"userIds" form:"userIds"`
 }
 
-// 修改密码结构体
+// 更新密码结构体
 type ChangePwdRequest struct {
 	OldPassword string `json:"oldPassword" form:"oldPassword" validate:"required"`
 	NewPassword string `json:"newPassword" form:"newPassword" validate:"required"`

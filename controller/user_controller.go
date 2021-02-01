@@ -17,7 +17,7 @@ import (
 type IUserController interface {
 	GetUserInfo(c *gin.Context)          // 获取当前登录用户信息
 	GetUsers(c *gin.Context)             // 获取用户列表
-	ChangePwd(c *gin.Context)            // 修改密码
+	ChangePwd(c *gin.Context)            // 更新用户登录密码
 	CreateUser(c *gin.Context)           // 创建用户
 	UpdateUserById(c *gin.Context)       // 更新用户
 	BatchDeleteUserByIds(c *gin.Context) //批量删除用户
@@ -62,16 +62,16 @@ func (uc UserController) GetUsers(c *gin.Context) {
 		return
 	}
 
-	// 查询
+	// 获取
 	users, total, err := uc.UserRepository.GetUsers(&req)
 	if err != nil {
-		response.Fail(c, nil, "查询用户列表失败: "+err.Error())
+		response.Fail(c, nil, "获取用户列表失败: "+err.Error())
 		return
 	}
-	response.Success(c, gin.H{"users": dto.ToUsersDto(users), "total": total}, "查询用户列表成功")
+	response.Success(c, gin.H{"users": dto.ToUsersDto(users), "total": total}, "获取用户列表成功")
 }
 
-// 修改密码
+// 更新用户登录密码
 func (uc UserController) ChangePwd(c *gin.Context) {
 	var req vo.ChangePwdRequest
 	// 参数绑定
@@ -100,13 +100,13 @@ func (uc UserController) ChangePwd(c *gin.Context) {
 		response.Fail(c, nil, "原密码有误")
 		return
 	}
-	// 修改密码
+	// 更新密码
 	err = uc.UserRepository.ChangePwd(user.Username, util.GenPasswd(req.NewPassword))
 	if err != nil {
-		response.Fail(c, nil, "修改密码失败: "+err.Error())
+		response.Fail(c, nil, "更新密码失败: "+err.Error())
 		return
 	}
-	response.Success(c, nil, "修改密码成功")
+	response.Success(c, nil, "更新密码成功")
 }
 
 // 创建用户
@@ -133,15 +133,15 @@ func (uc UserController) CreateUser(c *gin.Context) {
 
 	// 获取前端传来的用户角色id
 	reqRoleIds := req.RoleIds
-	// 根据角色id查询角色
+	// 根据角色id获取角色
 	rr := repository.NewRoleRepository()
 	roles, err := rr.GetRolesByIds(reqRoleIds)
 	if err != nil {
-		response.Fail(c, nil, "根据角色ID查询角色信息失败: "+err.Error())
+		response.Fail(c, nil, "根据角色ID获取角色信息失败: "+err.Error())
 		return
 	}
 	if len(roles) == 0 {
-		response.Fail(c, nil, "未查询到角色信息")
+		response.Fail(c, nil, "未获取到角色信息")
 		return
 	}
 	var reqRoleSorts []int
@@ -207,7 +207,7 @@ func (uc UserController) UpdateUserById(c *gin.Context) {
 	// 根据path中的userId获取用户信息
 	oldUser, err := uc.UserRepository.GetUserById(uint(userId))
 	if err != nil {
-		response.Fail(c, nil, "获取需要修改的用户信息失败: "+err.Error())
+		response.Fail(c, nil, "获取需要更新的用户信息失败: "+err.Error())
 		return
 	}
 
@@ -232,15 +232,15 @@ func (uc UserController) UpdateUserById(c *gin.Context) {
 
 	// 获取前端传来的用户角色id
 	reqRoleIds := req.RoleIds
-	// 根据角色id查询角色
+	// 根据角色id获取角色
 	rr := repository.NewRoleRepository()
 	roles, err := rr.GetRolesByIds(reqRoleIds)
 	if err != nil {
-		response.Fail(c, nil, "根据角色ID查询角色信息失败: "+err.Error())
+		response.Fail(c, nil, "根据角色ID获取角色信息失败: "+err.Error())
 		return
 	}
 	if len(roles) == 0 {
-		response.Fail(c, nil, "未查询到角色信息")
+		response.Fail(c, nil, "未获取到角色信息")
 		return
 	}
 	var reqRoleSorts []int
@@ -262,9 +262,9 @@ func (uc UserController) UpdateUserById(c *gin.Context) {
 		Creator:      ctxUser.Username,
 		Roles:        roles,
 	}
-	// 判断是修改自己还是修改别人
+	// 判断是更新自己还是更新别人
 	if userId == int(ctxUser.ID) {
-		// 如果是修改自己
+		// 如果是更新自己
 		// 不能禁用自己
 		if req.Status == 2 {
 			response.Fail(c, nil, "不能禁用自己")
@@ -277,9 +277,9 @@ func (uc UserController) UpdateUserById(c *gin.Context) {
 			return
 		}
 
-		// 不能修改自己的密码，只能在个人中心修改
+		// 不能更新自己的密码，只能在个人中心更新
 		if req.Password != "" {
-			response.Fail(c, nil, "请到个人中心修改自身密码")
+			response.Fail(c, nil, "请到个人中心更新自身密码")
 			return
 		}
 
@@ -287,22 +287,22 @@ func (uc UserController) UpdateUserById(c *gin.Context) {
 		user.Password = ctxUser.Password
 
 	} else {
-		// 如果是修改别人
-		// 用户不能修改比自己角色等级高的或者相同等级的用户
-		// 根据path中的userIdID查询用户角色排序最小值
+		// 如果是更新别人
+		// 用户不能更新比自己角色等级高的或者相同等级的用户
+		// 根据path中的userIdID获取用户角色排序最小值
 		minRoleSorts, err := uc.UserRepository.GetUserMinRoleSortsByIds([]uint{uint(userId)})
 		if err != nil || len(minRoleSorts) == 0 {
-			response.Fail(c, nil, "根据用户ID查询用户角色排序最小值失败")
+			response.Fail(c, nil, "根据用户ID获取用户角色排序最小值失败")
 			return
 		}
 		if currentRoleSortMin >= minRoleSorts[0] {
-			response.Fail(c, nil, "用户不能修改比自己角色等级高的或者相同等级的用户")
+			response.Fail(c, nil, "用户不能更新比自己角色等级高的或者相同等级的用户")
 			return
 		}
 
-		// 用户不能把别的用户角色等级修改得比自己高或相等
+		// 用户不能把别的用户角色等级更新得比自己高或相等
 		if currentRoleSortMin >= reqRoleSortMin {
-			response.Fail(c, nil, "用户不能把别的用户角色等级修改得比自己高或相等")
+			response.Fail(c, nil, "用户不能把别的用户角色等级更新得比自己高或相等")
 			return
 		}
 
@@ -314,13 +314,13 @@ func (uc UserController) UpdateUserById(c *gin.Context) {
 
 	}
 
-	// 修改用户
+	// 更新用户
 	err = uc.UserRepository.UpdateUserById(uint(userId), &user)
 	if err != nil {
-		response.Fail(c, nil, "修改用户失败: "+err.Error())
+		response.Fail(c, nil, "更新用户失败: "+err.Error())
 		return
 	}
-	response.Success(c, nil, "修改用户成功")
+	response.Success(c, nil, "更新用户成功")
 
 }
 
@@ -341,10 +341,10 @@ func (uc UserController) BatchDeleteUserByIds(c *gin.Context) {
 
 	// 前端传来的用户ID
 	reqUserIds := req.UserIds
-	// 根据用户ID查询用户角色排序最小值
+	// 根据用户ID获取用户角色排序最小值
 	roleMinSortList, err := uc.UserRepository.GetUserMinRoleSortsByIds(reqUserIds)
 	if err != nil || len(roleMinSortList) == 0 {
-		response.Fail(c, nil, "根据用户ID查询用户角色排序最小值失败")
+		response.Fail(c, nil, "根据用户ID获取用户角色排序最小值失败")
 		return
 	}
 

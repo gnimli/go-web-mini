@@ -276,7 +276,7 @@ func InitData() {
 			Method:   "PUT",
 			Path:     "/user/changePwd",
 			Category: "user",
-			Desc:     "修改用户登录密码",
+			Desc:     "更新用户登录密码",
 			Creator:  "系统",
 		},
 		{
@@ -396,7 +396,7 @@ func InitData() {
 			Method:   "GET",
 			Path:     "/menu/all/:roleId",
 			Category: "menu",
-			Desc:     "查询指定角色的菜单树",
+			Desc:     "获取指定角色的菜单树",
 			Creator:  "系统",
 		},
 		{
@@ -434,21 +434,13 @@ func InitData() {
 		{
 			Model:    gorm.Model{ID: 26},
 			Method:   "GET",
-			Path:     "/api/all/category/:roleId",
-			Category: "api",
-			Desc:     "查询指定角色的接口(以分类分组)",
-			Creator:  "系统",
-		},
-		{
-			Model:    gorm.Model{ID: 27},
-			Method:   "GET",
 			Path:     "/operation/log/list",
 			Category: "operation-log",
 			Desc:     "获取操作日志列表",
 			Creator:  "系统",
 		},
 		{
-			Model:    gorm.Model{ID: 28},
+			Model:    gorm.Model{ID: 27},
 			Method:   "DELETE",
 			Path:     "/operation/log/delete/batch",
 			Category: "operation-log",
