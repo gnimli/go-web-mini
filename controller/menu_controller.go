@@ -2,7 +2,7 @@ package controller
 
 import (
 	"github.com/gin-gonic/gin"
-	"go-lim/repository"
+	"go-web-base/repository"
 )
 
 type IMenuController interface {

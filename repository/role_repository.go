@@ -2,9 +2,9 @@ package repository
 
 import (
 	"fmt"
-	"go-lim/common"
-	"go-lim/model"
-	"go-lim/vo"
+	"go-web-base/common"
+	"go-web-base/model"
+	"go-web-base/vo"
 	"strings"
 )
 

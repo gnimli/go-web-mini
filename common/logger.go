@@ -2,7 +2,7 @@ package common
 
 import (
 	"fmt"
-	"go-lim/config"
+	"go-web-base/config"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"gopkg.in/natefinch/lumberjack.v2"

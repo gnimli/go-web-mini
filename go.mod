@@ -1,4 +1,4 @@
-module go-lim
+module go-web-base
 
 go 1.15
 

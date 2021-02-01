@@ -1,6 +1,6 @@
 package dto
 
-import "go-lim/model"
+import "go-web-base/model"
 
 // 权限接口信息响应, 字段含义见models
 type ApiGroupByCategoryResponse struct {

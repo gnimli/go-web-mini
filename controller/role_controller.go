@@ -5,11 +5,11 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 	"github.com/thoas/go-funk"
-	"go-lim/common"
-	"go-lim/model"
-	"go-lim/repository"
-	"go-lim/response"
-	"go-lim/vo"
+	"go-web-base/common"
+	"go-web-base/model"
+	"go-web-base/repository"
+	"go-web-base/response"
+	"go-web-base/vo"
 	"strconv"
 )
 

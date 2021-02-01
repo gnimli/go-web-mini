@@ -3,10 +3,10 @@ package controller
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
-	"go-lim/common"
-	"go-lim/repository"
-	"go-lim/response"
-	"go-lim/vo"
+	"go-web-base/common"
+	"go-web-base/repository"
+	"go-web-base/response"
+	"go-web-base/vo"
 )
 
 type IOperationLogController interface {

@@ -1,8 +1,8 @@
 package repository
 
 import (
-	"go-lim/model"
-	"go-lim/vo"
+	"go-web-base/model"
+	"go-web-base/vo"
 )
 
 type IMenuRepository interface {

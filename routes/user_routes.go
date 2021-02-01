@@ -3,8 +3,8 @@ package routes
 import (
 	jwt "github.com/appleboy/gin-jwt/v2"
 	"github.com/gin-gonic/gin"
-	"go-lim/controller"
-	"go-lim/middleware"
+	"go-web-base/controller"
+	"go-web-base/middleware"
 )
 
 // 注册用户路由

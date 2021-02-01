@@ -2,9 +2,9 @@ package middleware
 
 import (
 	"github.com/gin-gonic/gin"
-	"go-lim/config"
-	"go-lim/model"
-	"go-lim/repository"
+	"go-web-base/config"
+	"go-web-base/model"
+	"go-web-base/repository"
 	"strings"
 	"time"
 )

@@ -3,9 +3,9 @@ package common
 import (
 	"errors"
 	"github.com/thoas/go-funk"
-	"go-lim/config"
-	"go-lim/model"
-	"go-lim/util"
+	"go-web-base/config"
+	"go-web-base/model"
+	"go-web-base/util"
 	"gorm.io/gorm"
 )
 
