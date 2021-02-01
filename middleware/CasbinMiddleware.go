@@ -2,10 +2,10 @@ package middleware
 
 import (
 	"github.com/gin-gonic/gin"
-	"go-web-base/common"
-	"go-web-base/config"
-	"go-web-base/repository"
-	"go-web-base/response"
+	"go-web-mini/common"
+	"go-web-mini/config"
+	"go-web-mini/repository"
+	"go-web-mini/response"
 	"strings"
 	"sync"
 )

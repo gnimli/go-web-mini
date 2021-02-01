@@ -2,8 +2,8 @@ package common
 
 import (
 	"fmt"
-	"go-web-base/config"
-	"go-web-base/model"
+	"go-web-mini/config"
+	"go-web-mini/model"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )

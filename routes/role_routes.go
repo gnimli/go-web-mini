@@ -3,8 +3,8 @@ package routes
 import (
 	jwt "github.com/appleboy/gin-jwt/v2"
 	"github.com/gin-gonic/gin"
-	"go-web-base/controller"
-	"go-web-base/middleware"
+	"go-web-mini/controller"
+	"go-web-mini/middleware"
 )
 
 func InitRoleRoutes(r *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddleware) gin.IRoutes {

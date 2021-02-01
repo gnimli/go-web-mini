@@ -1,2 +1,2 @@
-# go-web-base
+# go-web-mini
 go study

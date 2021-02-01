@@ -1,4 +1,4 @@
-module go-web-base
+module go-web-mini
 
 go 1.15
 

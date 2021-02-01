@@ -3,9 +3,9 @@ package routes
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"go-web-base/common"
-	"go-web-base/config"
-	"go-web-base/middleware"
+	"go-web-mini/common"
+	"go-web-mini/config"
+	"go-web-mini/middleware"
 	"time"
 )
 

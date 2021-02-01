@@ -2,9 +2,9 @@ package repository
 
 import (
 	"fmt"
-	"go-web-base/common"
-	"go-web-base/model"
-	"go-web-base/vo"
+	"go-web-mini/common"
+	"go-web-mini/model"
+	"go-web-mini/vo"
 	"strings"
 )
 

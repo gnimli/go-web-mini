@@ -1,10 +1,10 @@
 package repository
 
 import (
-	"go-web-base/common"
-	"go-web-base/dto"
-	"go-web-base/model"
-	"go-web-base/vo"
+	"go-web-mini/common"
+	"go-web-mini/dto"
+	"go-web-mini/model"
+	"go-web-mini/vo"
 )
 
 type IApiRepository interface {

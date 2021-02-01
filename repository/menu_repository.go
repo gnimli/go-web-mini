@@ -1,8 +1,8 @@
 package repository
 
 import (
-	"go-web-base/model"
-	"go-web-base/vo"
+	"go-web-mini/model"
+	"go-web-mini/vo"
 )
 
 type IMenuRepository interface {

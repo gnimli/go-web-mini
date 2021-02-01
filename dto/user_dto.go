@@ -1,6 +1,6 @@
 package dto
 
-import "go-web-base/model"
+import "go-web-mini/model"
 
 // 当前用户信息
 type UserInfoDto struct {
