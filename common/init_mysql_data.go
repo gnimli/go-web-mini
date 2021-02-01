@@ -345,6 +345,14 @@ func InitData() {
 		},
 		{
 			Model:    gorm.Model{ID: 15},
+			Method:   "GET",
+			Path:     "/role/apis/get/:roleId",
+			Category: "role",
+			Desc:     "获取角色的权限接口",
+			Creator:  "系统",
+		},
+		{
+			Model:    gorm.Model{ID: 16},
 			Method:   "PATCH",
 			Path:     "/role/apis/update/:roleId",
 			Category: "role",
@@ -352,7 +360,7 @@ func InitData() {
 			Creator:  "系统",
 		},
 		{
-			Model:    gorm.Model{ID: 16},
+			Model:    gorm.Model{ID: 17},
 			Method:   "GET",
 			Path:     "/menu/tree",
 			Category: "menu",
@@ -360,7 +368,7 @@ func InitData() {
 			Creator:  "系统",
 		},
 		{
-			Model:    gorm.Model{ID: 17},
+			Model:    gorm.Model{ID: 18},
 			Method:   "GET",
 			Path:     "/menu/list",
 			Category: "menu",
@@ -368,7 +376,7 @@ func InitData() {
 			Creator:  "系统",
 		},
 		{
-			Model:    gorm.Model{ID: 18},
+			Model:    gorm.Model{ID: 19},
 			Method:   "POST",
 			Path:     "/menu/create",
 			Category: "menu",
@@ -376,7 +384,7 @@ func InitData() {
 			Creator:  "系统",
 		},
 		{
-			Model:    gorm.Model{ID: 19},
+			Model:    gorm.Model{ID: 20},
 			Method:   "PATCH",
 			Path:     "/menu/update/:menuId",
 			Category: "menu",
@@ -384,7 +392,7 @@ func InitData() {
 			Creator:  "系统",
 		},
 		{
-			Model:    gorm.Model{ID: 20},
+			Model:    gorm.Model{ID: 21},
 			Method:   "DELETE",
 			Path:     "/menu/delete/batch",
 			Category: "menu",
@@ -392,7 +400,7 @@ func InitData() {
 			Creator:  "系统",
 		},
 		{
-			Model:    gorm.Model{ID: 21},
+			Model:    gorm.Model{ID: 22},
 			Method:   "GET",
 			Path:     "/menu/all/:roleId",
 			Category: "menu",
@@ -400,7 +408,7 @@ func InitData() {
 			Creator:  "系统",
 		},
 		{
-			Model:    gorm.Model{ID: 22},
+			Model:    gorm.Model{ID: 23},
 			Method:   "GET",
 			Path:     "/api/list",
 			Category: "api",
@@ -408,7 +416,7 @@ func InitData() {
 			Creator:  "系统",
 		},
 		{
-			Model:    gorm.Model{ID: 23},
+			Model:    gorm.Model{ID: 24},
 			Method:   "POST",
 			Path:     "/api/create",
 			Category: "api",
@@ -416,7 +424,7 @@ func InitData() {
 			Creator:  "系统",
 		},
 		{
-			Model:    gorm.Model{ID: 24},
+			Model:    gorm.Model{ID: 25},
 			Method:   "PATCH",
 			Path:     "/api/update/:roleId",
 			Category: "api",
@@ -424,7 +432,7 @@ func InitData() {
 			Creator:  "系统",
 		},
 		{
-			Model:    gorm.Model{ID: 25},
+			Model:    gorm.Model{ID: 26},
 			Method:   "DELETE",
 			Path:     "/api/delete/batch",
 			Category: "api",
@@ -432,7 +440,7 @@ func InitData() {
 			Creator:  "系统",
 		},
 		{
-			Model:    gorm.Model{ID: 26},
+			Model:    gorm.Model{ID: 27},
 			Method:   "GET",
 			Path:     "/operation/log/list",
 			Category: "operation-log",
@@ -440,7 +448,7 @@ func InitData() {
 			Creator:  "系统",
 		},
 		{
-			Model:    gorm.Model{ID: 27},
+			Model:    gorm.Model{ID: 28},
 			Method:   "DELETE",
 			Path:     "/operation/log/delete/batch",
 			Category: "operation-log",

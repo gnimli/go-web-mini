@@ -16,7 +16,6 @@ func InitApiRoutes(r *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddleware) gin
 	router.Use(middleware.CasbinMiddleware())
 	{
 		router.GET("/list", apiController.GetApis)
-		router.GET("/all/category/:roleId", apiController.GetAllApiGroupByCategoryByRoleId)
 		router.POST("/create", apiController.CreateApi)
 		router.PATCH("/update/:apiId", apiController.UpdateApiById)
 		router.DELETE("/delete/batch", apiController.BatchDeleteApiByIds)

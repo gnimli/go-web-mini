@@ -18,6 +18,7 @@ type IRoleController interface {
 	CreateRole(c *gin.Context)           // 创建角色
 	UpdateRoleById(c *gin.Context)       // 更新角色
 	UpdateRoleMenusById(c *gin.Context)  // 更新角色的权限菜单
+	GetRoleApisById(c *gin.Context)      // 获取角色的权限接口
 	UpdateRoleApisById(c *gin.Context)   // 更新角色的权限接口
 	BatchDeleteRoleByIds(c *gin.Context) // 批量删除角色
 }
@@ -228,6 +229,34 @@ func (rc RoleController) UpdateRoleById(c *gin.Context) {
 // 更新角色的权限菜单
 func (rc RoleController) UpdateRoleMenusById(c *gin.Context) {
 	panic("implement me")
+}
+
+// 获取角色的权限接口
+func (rc RoleController) GetRoleApisById(c *gin.Context) {
+	// 获取path中的roleId
+	roleId, _ := strconv.Atoi(c.Param("roleId"))
+	if roleId <= 0 {
+		response.Fail(c, nil, "角色ID不正确")
+		return
+	}
+	// 根据path中的角色ID获取该角色信息
+	roles, err := rc.RoleRepository.GetRolesByIds([]uint{uint(roleId)})
+	if err != nil {
+		response.Fail(c, nil, err.Error())
+		return
+	}
+	if len(roles) == 0 {
+		response.Fail(c, nil, "未获取到角色信息")
+		return
+	}
+	// 根据角色keyword获取casbin中policy
+	keyword := roles[0].Keyword
+	policies := rc.RoleRepository.GetRoleApisByRoleKeyword(keyword)
+	if len(policies) == 0 {
+		response.Fail(c, nil, "未获取到角色的权限接口")
+		return
+	}
+	response.Success(c, gin.H{"policies": policies}, "获取角色的权限接口成功")
 }
 
 // 更新角色的权限接口

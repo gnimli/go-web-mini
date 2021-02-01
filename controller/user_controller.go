@@ -20,7 +20,7 @@ type IUserController interface {
 	ChangePwd(c *gin.Context)            // 更新用户登录密码
 	CreateUser(c *gin.Context)           // 创建用户
 	UpdateUserById(c *gin.Context)       // 更新用户
-	BatchDeleteUserByIds(c *gin.Context) //批量删除用户
+	BatchDeleteUserByIds(c *gin.Context) // 批量删除用户
 }
 
 type UserController struct {

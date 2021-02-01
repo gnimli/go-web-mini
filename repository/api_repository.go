@@ -4,20 +4,18 @@ import (
 	"errors"
 	"fmt"
 	"go-web-mini/common"
-	"go-web-mini/dto"
 	"go-web-mini/model"
 	"go-web-mini/vo"
 	"strings"
 )
 
 type IApiRepository interface {
-	GetApis(req *vo.ApiListRequest) ([]*model.Api, int64, error)                          // 获取接口列表
-	GetApisById(apiIds []uint) ([]*model.Api, error)                                      // 根据接口ID获取接口列表
-	GetAllApiGroupByCategoryByRoleId() ([]*dto.ApiGroupByCategoryResponse, []uint, error) // 获取指定角色的接口(以分类分组)
-	CreateApi(api *model.Api) error                                                       // 创建接口
-	UpdateApiById(apiId uint, api *model.Api) error                                       // 更新接口
-	BatchDeleteApiByIds(apiIds []uint) error                                              // 批量删除接口
-	GetApiDescByPath(path string, method string) (string, error)                          // 根据接口路径和请求方式获取接口描述
+	GetApis(req *vo.ApiListRequest) ([]*model.Api, int64, error) // 获取接口列表
+	GetApisById(apiIds []uint) ([]*model.Api, error)             // 根据接口ID获取接口列表
+	CreateApi(api *model.Api) error                              // 创建接口
+	UpdateApiById(apiId uint, api *model.Api) error              // 更新接口
+	BatchDeleteApiByIds(apiIds []uint) error                     // 批量删除接口
+	GetApiDescByPath(path string, method string) (string, error) // 根据接口路径和请求方式获取接口描述
 }
 
 type ApiRepository struct {
@@ -71,10 +69,6 @@ func (a ApiRepository) GetApisById(apiIds []uint) ([]*model.Api, error) {
 	var apis []*model.Api
 	err := common.DB.Where("id IN (?)", apiIds).Find(&apis).Error
 	return apis, err
-}
-
-func (a ApiRepository) GetAllApiGroupByCategoryByRoleId() ([]*dto.ApiGroupByCategoryResponse, []uint, error) {
-	panic("implement me")
 }
 
 // 创建接口

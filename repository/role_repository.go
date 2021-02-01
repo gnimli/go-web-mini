@@ -15,6 +15,7 @@ type IRoleRepository interface {
 	CreateRole(role *model.Role) error                             // 创建角色
 	UpdateRoleById(roleId uint, role *model.Role) error            // 更新角色
 	UpdateRoleMenusById(roleId uint, menuIds vo.UpdateRoleMenusRequest) error
+	GetRoleApisByRoleKeyword(roleKeyword string) [][]string              // 根据角色关键字获取角色的权限接口
 	UpdateRoleApis(roleKeyword string, reqRolePolicies [][]string) error // 更新角色的权限接口（先全部删除再新增）
 	BatchDeleteRoleByIds(roleIds []uint) error                           // 删除角色
 }
@@ -81,6 +82,12 @@ func (r RoleRepository) UpdateRoleById(roleId uint, role *model.Role) error {
 
 func (r RoleRepository) UpdateRoleMenusById(roleId uint, menuIds vo.UpdateRoleMenusRequest) error {
 	panic("implement me")
+}
+
+// 根据角色关键字获取角色的权限接口
+func (r RoleRepository) GetRoleApisByRoleKeyword(roleKeyword string) [][]string {
+	policies := common.CasbinEnforcer.GetFilteredPolicy(0, roleKeyword)
+	return policies
 }
 
 // 更新角色的权限接口（先全部删除再新增）
