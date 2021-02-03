@@ -29,7 +29,7 @@ mysql:
   # 密码
   password: 123456
   # 数据库名
-  database: go_lim
+  database: go_web_mini
   # 主机地址
   host: localhost
   # 端口

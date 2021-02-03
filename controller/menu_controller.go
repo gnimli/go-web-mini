@@ -2,16 +2,21 @@ package controller
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/go-playground/validator/v10"
+	"go-web-mini/common"
+	"go-web-mini/model"
 	"go-web-mini/repository"
+	"go-web-mini/response"
+	"go-web-mini/vo"
+	"strconv"
 )
 
 type IMenuController interface {
-	GetMenuTree(c *gin.Context)
-	GetAllMenuByRoleId(c *gin.Context)
-	GetMenus(c *gin.Context)
-	CreateMenu(c *gin.Context)
-	UpdateMenuById(c *gin.Context)
-	BatchDeleteMenuByIds(c *gin.Context)
+	GetMenus(c *gin.Context)             // 获取菜单列表
+	GetMenuTree(c *gin.Context)          // 获取菜单树
+	CreateMenu(c *gin.Context)           // 创建菜单
+	UpdateMenuById(c *gin.Context)       // 更新菜单
+	BatchDeleteMenuByIds(c *gin.Context) // 批量删除菜单
 }
 
 type MenuController struct {
@@ -24,26 +29,148 @@ func NewMenuController() IMenuController {
 	return menuController
 }
 
-func (m MenuController) GetMenuTree(c *gin.Context) {
-	panic("implement me")
+// 获取菜单列表
+func (mc MenuController) GetMenus(c *gin.Context) {
+	menus, err := mc.MenuRepository.GetMenus()
+	if err != nil {
+		response.Fail(c, nil, "获取菜单列表失败: "+err.Error())
+		return
+	}
+	response.Success(c, gin.H{"menus": menus}, "获取菜单列表成功")
 }
 
-func (m MenuController) GetAllMenuByRoleId(c *gin.Context) {
-	panic("implement me")
+// 获取菜单树
+func (mc MenuController) GetMenuTree(c *gin.Context) {
+	menuTree, err := mc.MenuRepository.GetMenuTree()
+	if err != nil {
+		response.Fail(c, nil, "获取菜单树失败: "+err.Error())
+		return
+	}
+	response.Success(c, gin.H{"menuTree": menuTree}, "获取菜单树成功")
 }
 
-func (m MenuController) GetMenus(c *gin.Context) {
-	panic("implement me")
+// 创建菜单
+func (mc MenuController) CreateMenu(c *gin.Context) {
+	var req vo.CreateMenuRequest
+	// 参数绑定
+	if err := c.ShouldBind(&req); err != nil {
+		response.Fail(c, nil, err.Error())
+		return
+	}
+	// 参数校验
+	if err := common.Validate.Struct(&req); err != nil {
+		errStr := err.(validator.ValidationErrors)[0].Translate(common.Trans)
+		response.Fail(c, nil, errStr)
+		return
+	}
+
+	// 获取当前用户
+	ur := repository.NewUserRepository()
+	ctxUser, err := ur.GetCurrentUser(c)
+	if err != nil {
+		response.Fail(c, nil, "获取当前用户信息失败")
+		return
+	}
+
+	menu := model.Menu{
+		Name:       req.Name,
+		Title:      req.Title,
+		Icon:       req.Icon,
+		Path:       req.Path,
+		Redirect:   req.Redirect,
+		Component:  req.Component,
+		Permission: req.Permission,
+		Sort:       req.Sort,
+		Status:     req.Status,
+		Visible:    req.Visible,
+		Breadcrumb: req.Breadcrumb,
+		ParentId:   req.ParentId,
+		Creator:    ctxUser.Username,
+	}
+
+	err = mc.MenuRepository.CreateMenu(&menu)
+	if err != nil {
+		response.Fail(c, nil, "创建菜单失败: "+err.Error())
+		return
+	}
+	response.Success(c, nil, "创建菜单成功")
 }
 
-func (m MenuController) CreateMenu(c *gin.Context) {
-	panic("implement me")
+// 更新菜单
+func (mc MenuController) UpdateMenuById(c *gin.Context) {
+	var req vo.UpdateMenuRequest
+	// 参数绑定
+	if err := c.ShouldBind(&req); err != nil {
+		response.Fail(c, nil, err.Error())
+		return
+	}
+	// 参数校验
+	if err := common.Validate.Struct(&req); err != nil {
+		errStr := err.(validator.ValidationErrors)[0].Translate(common.Trans)
+		response.Fail(c, nil, errStr)
+		return
+	}
+
+	// 获取路径中的menuId
+	menuId, _ := strconv.Atoi(c.Param("menuId"))
+	if menuId <= 0 {
+		response.Fail(c, nil, "菜单ID不正确")
+		return
+	}
+
+	// 获取当前用户
+	ur := repository.NewUserRepository()
+	ctxUser, err := ur.GetCurrentUser(c)
+	if err != nil {
+		response.Fail(c, nil, "获取当前用户信息失败")
+		return
+	}
+
+	menu := model.Menu{
+		Name:       req.Name,
+		Title:      req.Title,
+		Icon:       req.Icon,
+		Path:       req.Path,
+		Redirect:   req.Redirect,
+		Component:  req.Component,
+		Permission: req.Permission,
+		Sort:       req.Sort,
+		Status:     req.Status,
+		Visible:    req.Visible,
+		Breadcrumb: req.Breadcrumb,
+		ParentId:   req.ParentId,
+		Creator:    ctxUser.Username,
+	}
+
+	err = mc.MenuRepository.UpdateMenuById(uint(menuId), &menu)
+	if err != nil {
+		response.Fail(c, nil, "更新菜单失败: "+err.Error())
+		return
+	}
+
+	response.Success(c, nil, "更新菜单成功")
+
 }
 
-func (m MenuController) UpdateMenuById(c *gin.Context) {
-	panic("implement me")
-}
+// 批量删除菜单
+func (mc MenuController) BatchDeleteMenuByIds(c *gin.Context) {
+	var req vo.DeleteMenuRequest
+	// 参数绑定
+	if err := c.ShouldBind(&req); err != nil {
+		response.Fail(c, nil, err.Error())
+		return
+	}
+	// 参数校验
+	if err := common.Validate.Struct(&req); err != nil {
+		errStr := err.(validator.ValidationErrors)[0].Translate(common.Trans)
+		response.Fail(c, nil, errStr)
+		return
+	}
+	err := mc.MenuRepository.BatchDeleteMenuByIds(req.MenuIds)
+	if err != nil {
+		response.Fail(c, nil, "删除菜单失败: "+err.Error())
+		return
+	}
 
-func (m MenuController) BatchDeleteMenuByIds(c *gin.Context) {
-	panic("implement me")
+	response.Success(c, nil, "删除菜单成功")
 }

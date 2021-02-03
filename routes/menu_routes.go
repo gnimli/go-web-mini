@@ -16,7 +16,6 @@ func InitMenuRoutes(r *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddleware) gi
 	router.Use(middleware.CasbinMiddleware())
 	{
 		router.GET("/tree", menuController.GetMenuTree)
-		router.GET("/all/:roleId", menuController.GetAllMenuByRoleId)
 		router.GET("/list", menuController.GetMenus)
 		router.POST("/create", menuController.CreateMenu)
 		router.PATCH("/update/:menuId", menuController.UpdateMenuById)

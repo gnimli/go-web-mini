@@ -80,9 +80,6 @@ func (rc RoleController) CreateRole(c *gin.Context) {
 		return
 	}
 
-	if req.Sort == 0 {
-		req.Sort = 999
-	}
 	// 用户不能创建比自己等级高或相同等级的角色
 	if sort >= req.Sort {
 		response.Fail(c, nil, "不能创建比自己等级高或相同等级的角色")
@@ -127,10 +124,6 @@ func (rc RoleController) UpdateRoleById(c *gin.Context) {
 	if roleId <= 0 {
 		response.Fail(c, nil, "角色ID不正确")
 		return
-	}
-
-	if req.Sort == 0 {
-		req.Sort = 999
 	}
 
 	// 当前用户角色排序最小值（最高等级角色）以及当前用户

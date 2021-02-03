@@ -2,7 +2,7 @@ package dto
 
 import "go-web-mini/model"
 
-// 当前用户信息
+// 返回给前端的当前用户信息
 type UserInfoDto struct {
 	Username     string        `json:"username"`
 	Mobile       string        `json:"mobile"`
@@ -23,7 +23,7 @@ func ToUserInfoDto(user model.User) UserInfoDto {
 	}
 }
 
-// 用户列表
+// 返回给前端的用户列表
 type UsersDto struct {
 	Username     string `json:"username"`
 	Mobile       string `json:"mobile"`
