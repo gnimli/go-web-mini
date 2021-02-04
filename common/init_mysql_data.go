@@ -66,7 +66,6 @@ func InitData() {
 	newMenus := make([]model.Menu, 0)
 	menus := []model.Menu{
 		{
-			Model:     gorm.Model{ID: 1},
 			Path:      "/",
 			Component: "Layout",
 			Redirect:  "/dashboard",
@@ -76,7 +75,6 @@ func InitData() {
 			Creator:   "系统",
 		},
 		{
-			Model:     gorm.Model{ID: 2},
 			Name:      "Dashboard",
 			Title:     "首页",
 			Icon:      "dashboard",
@@ -88,7 +86,6 @@ func InitData() {
 			Creator:   "系统",
 		},
 		{
-			Model:     gorm.Model{ID: 3},
 			Name:      "System",
 			Title:     "系统管理",
 			Icon:      "system",
@@ -101,7 +98,6 @@ func InitData() {
 			Creator:   "系统",
 		},
 		{
-			Model:     gorm.Model{ID: 4},
 			Name:      "User",
 			Title:     "用户管理",
 			Icon:      "user",
@@ -113,7 +109,6 @@ func InitData() {
 			Creator:   "系统",
 		},
 		{
-			Model:     gorm.Model{ID: 5},
 			Name:      "Role",
 			Title:     "角色管理",
 			Icon:      "role",
@@ -125,7 +120,6 @@ func InitData() {
 			Creator:   "系统",
 		},
 		{
-			Model:     gorm.Model{ID: 6},
 			Name:      "Menu",
 			Title:     "菜单管理",
 			Icon:      "menu",
@@ -137,7 +131,6 @@ func InitData() {
 			Creator:   "系统",
 		},
 		{
-			Model:     gorm.Model{ID: 7},
 			Name:      "Api",
 			Title:     "接口管理",
 			Icon:      "api",
@@ -149,7 +142,8 @@ func InitData() {
 			Creator:   "系统",
 		},
 	}
-	for _, menu := range menus {
+	for i, menu := range menus {
+		menu.ID = uint(i + 1)
 		err := DB.First(&menu, menu.ID).Error
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			newMenus = append(newMenus, menu)
@@ -232,7 +226,6 @@ func InitData() {
 	// 4.写入api
 	apis := []model.Api{
 		{
-			Model:    gorm.Model{ID: 1},
 			Method:   "POST",
 			Path:     "/base/login",
 			Category: "base",
@@ -240,7 +233,6 @@ func InitData() {
 			Creator:  "系统",
 		},
 		{
-			Model:    gorm.Model{ID: 2},
 			Method:   "POST",
 			Path:     "/base/logout",
 			Category: "base",
@@ -248,7 +240,6 @@ func InitData() {
 			Creator:  "系统",
 		},
 		{
-			Model:    gorm.Model{ID: 3},
 			Method:   "POST",
 			Path:     "/base/refreshToken",
 			Category: "base",
@@ -256,7 +247,6 @@ func InitData() {
 			Creator:  "系统",
 		},
 		{
-			Model:    gorm.Model{ID: 4},
 			Method:   "POST",
 			Path:     "/user/info",
 			Category: "user",
@@ -264,7 +254,6 @@ func InitData() {
 			Creator:  "系统",
 		},
 		{
-			Model:    gorm.Model{ID: 5},
 			Method:   "GET",
 			Path:     "/user/list",
 			Category: "user",
@@ -272,7 +261,6 @@ func InitData() {
 			Creator:  "系统",
 		},
 		{
-			Model:    gorm.Model{ID: 6},
 			Method:   "PUT",
 			Path:     "/user/changePwd",
 			Category: "user",
@@ -280,7 +268,6 @@ func InitData() {
 			Creator:  "系统",
 		},
 		{
-			Model:    gorm.Model{ID: 7},
 			Method:   "POST",
 			Path:     "/user/create",
 			Category: "user",
@@ -288,7 +275,6 @@ func InitData() {
 			Creator:  "系统",
 		},
 		{
-			Model:    gorm.Model{ID: 8},
 			Method:   "PATCH",
 			Path:     "/user/update/:userId",
 			Category: "user",
@@ -296,7 +282,6 @@ func InitData() {
 			Creator:  "系统",
 		},
 		{
-			Model:    gorm.Model{ID: 9},
 			Method:   "DELETE",
 			Path:     "/user/delete/batch",
 			Category: "user",
@@ -304,7 +289,6 @@ func InitData() {
 			Creator:  "系统",
 		},
 		{
-			Model:    gorm.Model{ID: 10},
 			Method:   "GET",
 			Path:     "/role/list",
 			Category: "role",
@@ -312,7 +296,6 @@ func InitData() {
 			Creator:  "系统",
 		},
 		{
-			Model:    gorm.Model{ID: 11},
 			Method:   "POST",
 			Path:     "/role/create",
 			Category: "role",
@@ -320,7 +303,6 @@ func InitData() {
 			Creator:  "系统",
 		},
 		{
-			Model:    gorm.Model{ID: 12},
 			Method:   "PATCH",
 			Path:     "/role/update/:roleId",
 			Category: "role",
@@ -328,15 +310,13 @@ func InitData() {
 			Creator:  "系统",
 		},
 		{
-			Model:    gorm.Model{ID: 13},
-			Method:   "DELETE",
-			Path:     "/role/delete/batch",
+			Method:   "GET",
+			Path:     "/role/menus/get/:roleId",
 			Category: "role",
-			Desc:     "批量删除角色",
+			Desc:     "获取角色的权限菜单",
 			Creator:  "系统",
 		},
 		{
-			Model:    gorm.Model{ID: 14},
 			Method:   "PATCH",
 			Path:     "/role/menus/update/:roleId",
 			Category: "role",
@@ -344,7 +324,6 @@ func InitData() {
 			Creator:  "系统",
 		},
 		{
-			Model:    gorm.Model{ID: 15},
 			Method:   "GET",
 			Path:     "/role/apis/get/:roleId",
 			Category: "role",
@@ -352,7 +331,6 @@ func InitData() {
 			Creator:  "系统",
 		},
 		{
-			Model:    gorm.Model{ID: 16},
 			Method:   "PATCH",
 			Path:     "/role/apis/update/:roleId",
 			Category: "role",
@@ -360,15 +338,13 @@ func InitData() {
 			Creator:  "系统",
 		},
 		{
-			Model:    gorm.Model{ID: 17},
-			Method:   "GET",
-			Path:     "/menu/tree",
-			Category: "menu",
-			Desc:     "获取权限菜单",
+			Method:   "DELETE",
+			Path:     "/role/delete/batch",
+			Category: "role",
+			Desc:     "批量删除角色",
 			Creator:  "系统",
 		},
 		{
-			Model:    gorm.Model{ID: 18},
 			Method:   "GET",
 			Path:     "/menu/list",
 			Category: "menu",
@@ -376,7 +352,13 @@ func InitData() {
 			Creator:  "系统",
 		},
 		{
-			Model:    gorm.Model{ID: 19},
+			Method:   "GET",
+			Path:     "/menu/tree",
+			Category: "menu",
+			Desc:     "获取菜单树",
+			Creator:  "系统",
+		},
+		{
 			Method:   "POST",
 			Path:     "/menu/create",
 			Category: "menu",
@@ -384,7 +366,6 @@ func InitData() {
 			Creator:  "系统",
 		},
 		{
-			Model:    gorm.Model{ID: 20},
 			Method:   "PATCH",
 			Path:     "/menu/update/:menuId",
 			Category: "menu",
@@ -392,7 +373,6 @@ func InitData() {
 			Creator:  "系统",
 		},
 		{
-			Model:    gorm.Model{ID: 21},
 			Method:   "DELETE",
 			Path:     "/menu/delete/batch",
 			Category: "menu",
@@ -400,15 +380,20 @@ func InitData() {
 			Creator:  "系统",
 		},
 		{
-			Model:    gorm.Model{ID: 22},
 			Method:   "GET",
-			Path:     "/menu/all/:roleId",
+			Path:     "/menu/access/list/:userId",
 			Category: "menu",
-			Desc:     "获取指定角色的菜单树",
+			Desc:     "获取用户的可访问菜单列表",
 			Creator:  "系统",
 		},
 		{
-			Model:    gorm.Model{ID: 23},
+			Method:   "GET",
+			Path:     "/menu/access/tree/:userId",
+			Category: "menu",
+			Desc:     "获取用户的可访问菜单树",
+			Creator:  "系统",
+		},
+		{
 			Method:   "GET",
 			Path:     "/api/list",
 			Category: "api",
@@ -416,7 +401,13 @@ func InitData() {
 			Creator:  "系统",
 		},
 		{
-			Model:    gorm.Model{ID: 24},
+			Method:   "GET",
+			Path:     "/api/tree",
+			Category: "api",
+			Desc:     "获取接口树",
+			Creator:  "系统",
+		},
+		{
 			Method:   "POST",
 			Path:     "/api/create",
 			Category: "api",
@@ -424,7 +415,6 @@ func InitData() {
 			Creator:  "系统",
 		},
 		{
-			Model:    gorm.Model{ID: 25},
 			Method:   "PATCH",
 			Path:     "/api/update/:roleId",
 			Category: "api",
@@ -432,7 +422,6 @@ func InitData() {
 			Creator:  "系统",
 		},
 		{
-			Model:    gorm.Model{ID: 26},
 			Method:   "DELETE",
 			Path:     "/api/delete/batch",
 			Category: "api",
@@ -440,7 +429,6 @@ func InitData() {
 			Creator:  "系统",
 		},
 		{
-			Model:    gorm.Model{ID: 27},
 			Method:   "GET",
 			Path:     "/operation/log/list",
 			Category: "operation-log",
@@ -448,7 +436,6 @@ func InitData() {
 			Creator:  "系统",
 		},
 		{
-			Model:    gorm.Model{ID: 28},
 			Method:   "DELETE",
 			Path:     "/operation/log/delete/batch",
 			Category: "operation-log",
@@ -458,7 +445,8 @@ func InitData() {
 	}
 	newApi := make([]model.Api, 0)
 	newRoleCasbin := make([]model.RoleCasbin, 0)
-	for _, api := range apis {
+	for i, api := range apis {
+		api.ID = uint(i + 1)
 		err := DB.First(&api, api.ID).Error
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			newApi = append(newApi, api)

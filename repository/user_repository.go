@@ -21,7 +21,7 @@ type IUserRepository interface {
 	CreateUser(user *model.User) error                              // 创建用户
 	GetUserById(id uint) (model.User, error)                        // 获取单个用户
 	GetUsers(req *vo.UserListRequest) ([]*model.User, int64, error) // 获取用户列表
-	UpdateUserById(id uint, user *model.User) error                 // 更新用户
+	UpdateUser(user *model.User) error                              // 更新用户
 	BatchDeleteUserByIds(ids []uint) error                          // 批量删除
 
 	GetCurrentUser(c *gin.Context) (model.User, error)                  // 获取当前登录用户信息
@@ -210,8 +210,8 @@ func (ur UserRepository) CreateUser(user *model.User) error {
 }
 
 // 更新用户
-func (ur UserRepository) UpdateUserById(id uint, user *model.User) error {
-	err := common.DB.Debug().Model(user).Association("Roles").Replace(user.Roles)
+func (ur UserRepository) UpdateUser(user *model.User) error {
+	err := common.DB.Model(user).Association("Roles").Replace(user.Roles)
 	// 如果更新成功就更新用户信息缓存
 	if err == nil {
 		userInfoCache.Set(user.Username, *user, cache.DefaultExpiration)
@@ -232,7 +232,7 @@ func (ur UserRepository) BatchDeleteUserByIds(ids []uint) error {
 		users = append(users, user)
 	}
 
-	err := common.DB.Debug().Select("Roles").Delete(&users).Error
+	err := common.DB.Select("Roles").Delete(&users).Error
 	// 删除用户成功，则删除用户信息缓存
 	if err == nil {
 		for _, user := range users {

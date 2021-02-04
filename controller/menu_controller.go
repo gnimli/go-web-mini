@@ -17,6 +17,9 @@ type IMenuController interface {
 	CreateMenu(c *gin.Context)           // 创建菜单
 	UpdateMenuById(c *gin.Context)       // 更新菜单
 	BatchDeleteMenuByIds(c *gin.Context) // 批量删除菜单
+
+	GetUserMenusByUserId(c *gin.Context)    // 获取用户的可访问菜单列表
+	GetUserMenuTreeByUserId(c *gin.Context) // 获取用户的可访问菜单树
 }
 
 type MenuController struct {
@@ -79,11 +82,12 @@ func (mc MenuController) CreateMenu(c *gin.Context) {
 		Path:       req.Path,
 		Redirect:   req.Redirect,
 		Component:  req.Component,
-		Permission: req.Permission,
 		Sort:       req.Sort,
 		Status:     req.Status,
-		Visible:    req.Visible,
+		Hidden:     req.Hidden,
+		AlwaysShow: req.AlwaysShow,
 		Breadcrumb: req.Breadcrumb,
+		ActiveMenu: req.ActiveMenu,
 		ParentId:   req.ParentId,
 		Creator:    ctxUser.Username,
 	}
@@ -133,11 +137,12 @@ func (mc MenuController) UpdateMenuById(c *gin.Context) {
 		Path:       req.Path,
 		Redirect:   req.Redirect,
 		Component:  req.Component,
-		Permission: req.Permission,
 		Sort:       req.Sort,
 		Status:     req.Status,
-		Visible:    req.Visible,
+		Hidden:     req.Hidden,
+		AlwaysShow: req.AlwaysShow,
 		Breadcrumb: req.Breadcrumb,
+		ActiveMenu: req.ActiveMenu,
 		ParentId:   req.ParentId,
 		Creator:    ctxUser.Username,
 	}
@@ -173,4 +178,38 @@ func (mc MenuController) BatchDeleteMenuByIds(c *gin.Context) {
 	}
 
 	response.Success(c, nil, "删除菜单成功")
+}
+
+// 根据用户ID获取用户的可访问菜单列表
+func (mc MenuController) GetUserMenusByUserId(c *gin.Context) {
+	// 获取路径中的userId
+	userId, _ := strconv.Atoi(c.Param("userId"))
+	if userId <= 0 {
+		response.Fail(c, nil, "用户ID不正确")
+		return
+	}
+
+	menus, err := mc.MenuRepository.GetUserMenusByUserId(uint(userId))
+	if err != nil {
+		response.Fail(c, nil, "获取用户的可访问菜单列表失败: "+err.Error())
+		return
+	}
+	response.Success(c, gin.H{"menus": menus}, "获取用户的可访问菜单列表成功")
+}
+
+// 根据用户ID获取用户的可访问菜单树
+func (mc MenuController) GetUserMenuTreeByUserId(c *gin.Context) {
+	// 获取路径中的userId
+	userId, _ := strconv.Atoi(c.Param("userId"))
+	if userId <= 0 {
+		response.Fail(c, nil, "用户ID不正确")
+		return
+	}
+
+	menuTree, err := mc.MenuRepository.GetUserMenuTreeByUserId(uint(userId))
+	if err != nil {
+		response.Fail(c, nil, "获取用户的可访问菜单树失败: "+err.Error())
+		return
+	}
+	response.Success(c, gin.H{"menuTree": menuTree}, "获取用户的可访问菜单树成功")
 }

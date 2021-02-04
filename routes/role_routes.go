@@ -18,6 +18,7 @@ func InitRoleRoutes(r *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddleware) gi
 		router.GET("/list", roleController.GetRoles)
 		router.POST("/create", roleController.CreateRole)
 		router.PATCH("/update/:roleId", roleController.UpdateRoleById)
+		router.GET("/menus/get/:roleId", roleController.GetRoleMenusById)
 		router.PATCH("/menus/update/:roleId", roleController.UpdateRoleMenusById)
 		router.GET("/apis/get/:roleId", roleController.GetRoleApisById)
 		router.PATCH("/apis/update/:roleId", roleController.UpdateRoleApisById)

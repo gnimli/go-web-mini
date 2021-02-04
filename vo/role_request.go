@@ -23,12 +23,12 @@ type DeleteRoleRequest struct {
 	RoleIds []uint `json:"roleIds" form:"roleIds"`
 }
 
-// 更新角色的菜单权限
+// 更新角色的权限菜单
 type UpdateRoleMenusRequest struct {
 	MenuIds []uint `json:"menuIds" form:"menuIds"`
 }
 
-// 更新角色的API权限
+// 更新角色的权限接口
 type UpdateRoleApisRequest struct {
 	ApiIds []uint `json:"apiIds" form:"apiIds"`
 }

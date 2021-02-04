@@ -315,7 +315,7 @@ func (uc UserController) UpdateUserById(c *gin.Context) {
 	}
 
 	// 更新用户
-	err = uc.UserRepository.UpdateUserById(uint(userId), &user)
+	err = uc.UserRepository.UpdateUser(&user)
 	if err != nil {
 		response.Fail(c, nil, "更新用户失败: "+err.Error())
 		return

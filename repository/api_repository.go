@@ -3,7 +3,9 @@ package repository
 import (
 	"errors"
 	"fmt"
+	"github.com/thoas/go-funk"
 	"go-web-mini/common"
+	"go-web-mini/dto"
 	"go-web-mini/model"
 	"go-web-mini/vo"
 	"strings"
@@ -12,6 +14,7 @@ import (
 type IApiRepository interface {
 	GetApis(req *vo.ApiListRequest) ([]*model.Api, int64, error) // 获取接口列表
 	GetApisById(apiIds []uint) ([]*model.Api, error)             // 根据接口ID获取接口列表
+	GetApiTree() ([]*dto.ApiTreeDto, error)                      // 获取接口树(按接口Category字段分类)
 	CreateApi(api *model.Api) error                              // 创建接口
 	UpdateApiById(apiId uint, api *model.Api) error              // 更新接口
 	BatchDeleteApiByIds(apiIds []uint) error                     // 批量删除接口
@@ -69,6 +72,35 @@ func (a ApiRepository) GetApisById(apiIds []uint) ([]*model.Api, error) {
 	var apis []*model.Api
 	err := common.DB.Where("id IN (?)", apiIds).Find(&apis).Error
 	return apis, err
+}
+
+// 获取接口树(按接口Category字段分类)
+func (a ApiRepository) GetApiTree() ([]*dto.ApiTreeDto, error) {
+	var apiList []*model.Api
+	err := common.DB.Order("category").Order("created_at").Find(&apiList).Error
+	// 获取所有的分类
+	var categoryList []string
+	for _, api := range apiList {
+		categoryList = append(categoryList, api.Category)
+	}
+	// 获取去重后的分类
+	categoryUniq := funk.UniqString(categoryList)
+
+	apiTree := make([]*dto.ApiTreeDto, len(categoryUniq))
+
+	for i, category := range categoryUniq {
+		apiTree[i] = &dto.ApiTreeDto{
+			Category: category,
+			Children: nil,
+		}
+		for _, api := range apiList {
+			if category == api.Category {
+				apiTree[i].Children = append(apiTree[i].Children, api)
+			}
+		}
+	}
+
+	return apiTree, err
 }
 
 // 创建接口

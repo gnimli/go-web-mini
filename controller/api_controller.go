@@ -13,6 +13,7 @@ import (
 
 type IApiController interface {
 	GetApis(c *gin.Context)             // 获取接口列表
+	GetApiTree(c *gin.Context)          // 获取接口树(按接口Category字段分类)
 	CreateApi(c *gin.Context)           // 创建接口
 	UpdateApiById(c *gin.Context)       // 更新接口
 	BatchDeleteApiByIds(c *gin.Context) // 批量删除接口
@@ -51,6 +52,18 @@ func (ac ApiController) GetApis(c *gin.Context) {
 	response.Success(c, gin.H{
 		"apis": apis, "total": total,
 	}, "获取接口列表成功")
+}
+
+// 获取接口树(按接口Category字段分类)
+func (ac ApiController) GetApiTree(c *gin.Context) {
+	tree, err := ac.ApiRepository.GetApiTree()
+	if err != nil {
+		response.Fail(c, nil, "获取接口树失败")
+		return
+	}
+	response.Success(c, gin.H{
+		"apiTree": tree,
+	}, "获取接口树成功")
 }
 
 // 创建接口

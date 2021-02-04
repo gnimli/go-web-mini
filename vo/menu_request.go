@@ -8,11 +8,12 @@ type CreateMenuRequest struct {
 	Path       string `json:"path" form:"path" validate:"required"`
 	Redirect   string `json:"redirect" form:"redirect"`
 	Component  string `json:"component" form:"component" validate:"required"`
-	Permission string `json:"permission" form:"permission"`
 	Sort       uint   `json:"sort" form:"sort" validate:"gte=1,lte=999"`
 	Status     uint   `json:"status" form:"status" validate:"oneof=1 2"`
-	Visible    uint   `json:"visible" form:"visible" validate:"oneof=1 2"`
+	Hidden     uint   `json:"hidden" form:"hidden" validate:"oneof=1 2"`
+	AlwaysShow uint   `json:"alwaysShow" form:"alwaysShow" validate:"oneof=1 2"`
 	Breadcrumb uint   `json:"breadcrumb" form:"breadcrumb"`
+	ActiveMenu string `json:"activeMenu" form:"activeMenu"`
 	ParentId   uint   `json:"parentId" form:"parentId"`
 }
 
@@ -24,11 +25,12 @@ type UpdateMenuRequest struct {
 	Path       string `json:"path" form:"path"`
 	Redirect   string `json:"redirect" form:"redirect"`
 	Component  string `json:"component" form:"component"`
-	Permission string `json:"permission" form:"permission"`
 	Sort       uint   `json:"sort" form:"sort" validate:"gte=1,lte=999"`
 	Status     uint   `json:"status" form:"status" validate:"oneof=1 2"`
-	Visible    uint   `json:"visible" form:"visible" validate:"oneof=1 2"`
+	Hidden     uint   `json:"hidden" form:"hidden" validate:"oneof=1 2"`
+	AlwaysShow uint   `json:"alwaysShow" form:"alwaysShow" validate:"oneof=1 2"`
 	Breadcrumb uint   `json:"breadcrumb" form:"breadcrumb"`
+	ActiveMenu string `json:"activeMenu" form:"activeMenu"`
 	ParentId   uint   `json:"parentId" form:"parentId"`
 }
 

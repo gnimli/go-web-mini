@@ -17,6 +17,7 @@ type IRoleController interface {
 	GetRoles(c *gin.Context)             // 获取角色列表
 	CreateRole(c *gin.Context)           // 创建角色
 	UpdateRoleById(c *gin.Context)       // 更新角色
+	GetRoleMenusById(c *gin.Context)     // 获取角色的权限菜单
 	UpdateRoleMenusById(c *gin.Context)  // 更新角色的权限菜单
 	GetRoleApisById(c *gin.Context)      // 获取角色的权限接口
 	UpdateRoleApisById(c *gin.Context)   // 更新角色的权限接口
@@ -219,9 +220,117 @@ func (rc RoleController) UpdateRoleById(c *gin.Context) {
 	response.Success(c, nil, "更新角色成功")
 }
 
+// 获取角色的权限菜单
+func (rc RoleController) GetRoleMenusById(c *gin.Context) {
+	// 获取path中的roleId
+	roleId, _ := strconv.Atoi(c.Param("roleId"))
+	if roleId <= 0 {
+		response.Fail(c, nil, "角色ID不正确")
+		return
+	}
+	menus, err := rc.RoleRepository.GetRoleMenusById(uint(roleId))
+	if err != nil {
+		response.Fail(c, nil, "获取角色的权限菜单失败: "+err.Error())
+		return
+	}
+	response.Success(c, gin.H{"menus": menus}, "获取角色的权限菜单成功")
+}
+
 // 更新角色的权限菜单
 func (rc RoleController) UpdateRoleMenusById(c *gin.Context) {
-	panic("implement me")
+	var req vo.UpdateRoleMenusRequest
+	// 参数绑定
+	if err := c.ShouldBind(&req); err != nil {
+		response.Fail(c, nil, err.Error())
+		return
+	}
+	// 参数校验
+	if err := common.Validate.Struct(&req); err != nil {
+		errStr := err.(validator.ValidationErrors)[0].Translate(common.Trans)
+		response.Fail(c, nil, errStr)
+		return
+	}
+	// 获取path中的roleId
+	roleId, _ := strconv.Atoi(c.Param("roleId"))
+	if roleId <= 0 {
+		response.Fail(c, nil, "角色ID不正确")
+		return
+	}
+	// 根据path中的角色ID获取该角色信息
+	roles, err := rc.RoleRepository.GetRolesByIds([]uint{uint(roleId)})
+	if err != nil {
+		response.Fail(c, nil, err.Error())
+		return
+	}
+	if len(roles) == 0 {
+		response.Fail(c, nil, "未获取到角色信息")
+		return
+	}
+
+	// 当前用户角色排序最小值（最高等级角色）以及当前用户
+	ur := repository.NewUserRepository()
+	minSort, ctxUser, err := ur.GetCurrentUserMinRoleSort(c)
+	if err != nil {
+		response.Fail(c, nil, err.Error())
+		return
+	}
+
+	// (非管理员)不能更新比自己角色等级高或相等角色的权限菜单
+	if minSort != 1 {
+		if minSort >= roles[0].Sort {
+			response.Fail(c, nil, "不能更新比自己角色等级高或相等角色的权限菜单")
+			return
+		}
+	}
+
+	// 获取当前用户所拥有的权限菜单
+	mr := repository.NewMenuRepository()
+	ctxUserMenus, err := mr.GetUserMenusByUserId(ctxUser.ID)
+	if err != nil {
+		response.Fail(c, nil, "获取当前用户的可访问菜单列表失败: "+err.Error())
+		return
+	}
+
+	// 获取当前用户所拥有的权限菜单ID
+	ctxUserMenusIds := make([]uint, 0)
+	for _, menu := range ctxUserMenus {
+		ctxUserMenusIds = append(ctxUserMenusIds, menu.ID)
+	}
+
+	// 前端传来最新的MenuIds集合
+	menuIds := req.MenuIds
+
+	// (非管理员)不能把角色的权限菜单设置的比当前用户所拥有的权限菜单多
+	if minSort != 1 {
+		for _, id := range menuIds {
+			if !funk.Contains(ctxUserMenusIds, id) {
+				response.Fail(c, nil, fmt.Sprintf("无权设置ID为%d的菜单", id))
+				return
+			}
+		}
+	}
+
+	// 用户需要修改的菜单集合
+	reqMenus := make([]*model.Menu, 0)
+	for _, id := range menuIds {
+		for _, menu := range ctxUserMenus {
+			if id == menu.ID {
+				reqMenus = append(reqMenus, menu)
+				break
+			}
+		}
+	}
+
+	roles[0].Menus = reqMenus
+
+	err = rc.RoleRepository.UpdateRoleMenus(roles[0])
+	if err != nil {
+		response.Fail(c, nil, "更新角色的权限菜单失败: "+err.Error())
+		return
+	}
+
+	response.Success(c, nil, "更新角色的权限菜单成功")
+
 }
 
 // 获取角色的权限接口
