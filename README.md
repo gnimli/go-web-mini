@@ -1,7 +1,7 @@
 <h1 align="center">go-web-mini</h1>
 
 <div align="center">
-Go + Vue开发的管理系统脚手架, 前后端分离, 仅包含项目开发的必需部分, 基于角色的访问控制(RBAC), 分包合理, 精简易于扩展。 后端Go包含了gin、 gorm、 jwt和casbin等的使用, 前端Vue基于vue-element-admin开发: https://github.com/gnimli/go-web-mini-ui.git。
+Go + Vue开发的管理系统脚手架, 前后端分离, 仅包含项目开发的必需部分, 基于角色的访问控制(RBAC), 分包合理, 精简易于扩展。 后端Go包含了gin、 gorm、 jwt和casbin等的使用, 前端Vue基于vue-element-admin开发: https://github.com/gnimli/go-web-mini-ui.git
 <p align="center">
 <img src="https://img.shields.io/github/go-mod/go-version/gnimli/go-web-mini" alt="Go version"/>
 <img src="https://img.shields.io/badge/Gin-1.6.3-brightgreen" alt="Gin version"/>
