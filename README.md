@@ -47,7 +47,7 @@ Go + Vue开发的管理系统脚手架, 前后端分离, 仅包含项目开发�
 
 ```
 ## 前端Vue项目
-    go-web-mini-ui <https://github.com/gnimli/go-web-mini-ui.git>
+    go-web-mini-ui https://github.com/gnimli/go-web-mini-ui.git
 
 ## TODO
 
