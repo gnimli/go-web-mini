@@ -8,21 +8,21 @@ type RegisterAndLoginRequest struct {
 
 // 创建用户结构体
 type CreateUserRequest struct {
-	Username     string `form:"username" json:"username" validate:"required"`
+	Username     string `form:"username" json:"username" validate:"required,min=2,max=20"`
 	Password     string `form:"password" json:"password"`
-	Mobile       string `form:"mobile" json:"mobile" validate:"required"`
+	Mobile       string `form:"mobile" json:"mobile" validate:"required,checkMobile"`
 	Avatar       string `form:"avatar" json:"avatar"`
-	Nickname     string `form:"nickname" json:"nickname"`
-	Introduction string `form:"introduction" json:"introduction"`
+	Nickname     string `form:"nickname" json:"nickname" validate:"min=2,max=20"`
+	Introduction string `form:"introduction" json:"introduction" validate:"min=0,max=255"`
 	Status       uint   `form:"status" json:"status" validate:"oneof=1 2"`
 	RoleIds      []uint `form:"roleIds" json:"roleIds" validate:"required"`
 }
 
 // 获取用户列表结构体
 type UserListRequest struct {
-	Username string `json:"username" form:"username"`
-	Mobile   string `json:"mobile" form:"mobile"`
-	Nickname string `json:"nickname" form:"nickname"`
+	Username string `json:"username" form:"username" validate:"min=2,max=20"`
+	Mobile   string `json:"mobile" form:"mobile" validate:"checkMobile"`
+	Nickname string `json:"nickname" form:"nickname" validate:"min=2,max=20"`
 	Status   uint   `json:"status" form:"status" validate:"oneof=1 2"`
 	PageNum  uint   `json:"pageNum" form:"pageNum"`
 	PageSize uint   `json:"pageSize" form:"pageSize"`

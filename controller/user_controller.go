@@ -5,6 +5,7 @@ import (
 	"github.com/go-playground/validator/v10"
 	"github.com/thoas/go-funk"
 	"go-web-mini/common"
+	"go-web-mini/config"
 	"go-web-mini/dto"
 	"go-web-mini/model"
 	"go-web-mini/repository"
@@ -74,6 +75,7 @@ func (uc UserController) GetUsers(c *gin.Context) {
 // 更新用户登录密码
 func (uc UserController) ChangePwd(c *gin.Context) {
 	var req vo.ChangePwdRequest
+
 	// 参数绑定
 	if err := c.ShouldBind(&req); err != nil {
 		response.Fail(c, nil, err.Error())
@@ -85,6 +87,21 @@ func (uc UserController) ChangePwd(c *gin.Context) {
 		response.Fail(c, nil, errStr)
 		return
 	}
+
+	// 前端传来的密码是rsa加密的,先解密
+	// 密码通过RSA解密
+	decodeOldPassword, err := util.RSADecrypt([]byte(req.OldPassword), config.Conf.System.RSAPrivateBytes)
+	if err != nil {
+		response.Fail(c, nil, err.Error())
+		return
+	}
+	decodeNewPassword, err := util.RSADecrypt([]byte(req.NewPassword), config.Conf.System.RSAPrivateBytes)
+	if err != nil {
+		response.Fail(c, nil, err.Error())
+		return
+	}
+	req.OldPassword = string(decodeOldPassword)
+	req.NewPassword = string(decodeNewPassword)
 
 	// 获取当前用户
 	user, err := uc.UserRepository.GetCurrentUser(c)
@@ -121,6 +138,18 @@ func (uc UserController) CreateUser(c *gin.Context) {
 	if err := common.Validate.Struct(&req); err != nil {
 		errStr := err.(validator.ValidationErrors)[0].Translate(common.Trans)
 		response.Fail(c, nil, errStr)
+		return
+	}
+
+	// 密码通过RSA解密
+	decodeData, err := util.RSADecrypt([]byte(req.Password), config.Conf.System.RSAPrivateBytes)
+	if err != nil {
+		response.Fail(c, nil, err.Error())
+		return
+	}
+	req.Password = string(decodeData)
+	if len(req.Password) < 6 {
+		response.Fail(c, nil, "密码长度至少为6位")
 		return
 	}
 
@@ -310,6 +339,13 @@ func (uc UserController) UpdateUserById(c *gin.Context) {
 		if req.Password == "" {
 			req.Password = "123456"
 		}
+		// 密码通过RSA解密
+		decodeData, err := util.RSADecrypt([]byte(req.Password), config.Conf.System.RSAPrivateBytes)
+		if err != nil {
+			response.Fail(c, nil, err.Error())
+			return
+		}
+		req.Password = string(decodeData)
 		user.Password = util.GenPasswd(req.Password)
 
 	}

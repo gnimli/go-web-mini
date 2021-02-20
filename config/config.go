@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/fsnotify/fsnotify"
 	"github.com/spf13/viper"
+	"go-web-mini/util"
 	"go.uber.org/zap/zapcore"
 	"os"
 )
@@ -43,6 +44,9 @@ func InitConfig() {
 		if err := viper.Unmarshal(Conf); err != nil {
 			panic(fmt.Errorf("初始化配置文件失败:%s \n", err))
 		}
+		// 读取rsa key
+		Conf.System.RSAPublicBytes = util.RSAReadKeyFromFile(Conf.System.RSAPublicKey)
+		Conf.System.RSAPrivateBytes = util.RSAReadKeyFromFile(Conf.System.RSAPrivateKey)
 	})
 
 	if err != nil {
@@ -52,14 +56,21 @@ func InitConfig() {
 	if err := viper.Unmarshal(Conf); err != nil {
 		panic(fmt.Errorf("初始化配置文件失败:%s \n", err))
 	}
+	// 读取rsa key
+	Conf.System.RSAPublicBytes = util.RSAReadKeyFromFile(Conf.System.RSAPublicKey)
+	Conf.System.RSAPrivateBytes = util.RSAReadKeyFromFile(Conf.System.RSAPrivateKey)
 
 }
 
 type SystemConfig struct {
-	Mode          string `mapstructure:"mode" json:"mode"`
-	UrlPathPrefix string `mapstructure:"url-path-prefix" json:"urlPathPrefix"`
-	Port          int    `mapstructure:"port" json:"port"`
-	InitData      bool   `mapstructure:"init-data" json:"initData"`
+	Mode            string `mapstructure:"mode" json:"mode"`
+	UrlPathPrefix   string `mapstructure:"url-path-prefix" json:"urlPathPrefix"`
+	Port            int    `mapstructure:"port" json:"port"`
+	InitData        bool   `mapstructure:"init-data" json:"initData"`
+	RSAPublicKey    string `mapstructure:"rsa-public-key" json:"rsaPublicKey"`
+	RSAPrivateKey   string `mapstructure:"rsa-private-key" json:"rsaPrivateKey"`
+	RSAPublicBytes  []byte `mapstructure:"-" json:"-"`
+	RSAPrivateBytes []byte `mapstructure:"-" json:"-"`
 }
 
 type LogsConfig struct {
