@@ -4,6 +4,7 @@ import "go-web-mini/model"
 
 // 返回给前端的当前用户信息
 type UserInfoDto struct {
+	ID           uint          `json:"id"`
 	Username     string        `json:"username"`
 	Mobile       string        `json:"mobile"`
 	Avatar       string        `json:"avatar"`
@@ -14,6 +15,7 @@ type UserInfoDto struct {
 
 func ToUserInfoDto(user model.User) UserInfoDto {
 	return UserInfoDto{
+		ID:           user.ID,
 		Username:     user.Username,
 		Mobile:       user.Mobile,
 		Avatar:       user.Avatar,
