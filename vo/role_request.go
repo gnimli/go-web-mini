@@ -2,9 +2,9 @@ package vo
 
 // 新增角色结构体
 type CreateRoleRequest struct {
-	Name    string `json:"name" form:"name" validate:"required"`
-	Keyword string `json:"keyword" form:"keyword" validate:"required"`
-	Desc    string `json:"desc" form:"desc"`
+	Name    string `json:"name" form:"name" validate:"required,min=1,max=20"`
+	Keyword string `json:"keyword" form:"keyword" validate:"required,min=1,max=20"`
+	Desc    string `json:"desc" form:"desc" validate:"min=0,max=100"`
 	Status  uint   `json:"status" form:"status" validate:"oneof=1 2"`
 	Sort    uint   `json:"sort" form:"sort" validate:"gte=1,lte=999"`
 }

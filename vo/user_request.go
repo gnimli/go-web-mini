@@ -12,7 +12,7 @@ type CreateUserRequest struct {
 	Password     string `form:"password" json:"password"`
 	Mobile       string `form:"mobile" json:"mobile" validate:"required,checkMobile"`
 	Avatar       string `form:"avatar" json:"avatar"`
-	Nickname     string `form:"nickname" json:"nickname" validate:"min=2,max=20"`
+	Nickname     string `form:"nickname" json:"nickname" validate:"min=0,max=20"`
 	Introduction string `form:"introduction" json:"introduction" validate:"min=0,max=255"`
 	Status       uint   `form:"status" json:"status" validate:"oneof=1 2"`
 	RoleIds      []uint `form:"roleIds" json:"roleIds" validate:"required"`

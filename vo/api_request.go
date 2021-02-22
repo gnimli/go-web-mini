@@ -12,18 +12,18 @@ type ApiListRequest struct {
 
 // 创建接口结构体
 type CreateApiRequest struct {
-	Method   string `json:"method" form:"method" validate:"required"`
-	Path     string `json:"path" form:"path" validate:"required"`
-	Category string `json:"category" form:"category" validate:"required"`
-	Desc     string `json:"desc" form:"desc"`
+	Method   string `json:"method" form:"method" validate:"required,min=1,max=20"`
+	Path     string `json:"path" form:"path" validate:"required,min=1,max=100"`
+	Category string `json:"category" form:"category" validate:"required,min=1,max=50"`
+	Desc     string `json:"desc" form:"desc" validate:"min=0,max=100"`
 }
 
 // 更新接口结构体
 type UpdateApiRequest struct {
-	Method   string `json:"method" form:"method"`
-	Path     string `json:"path" form:"path"`
-	Category string `json:"category" form:"category"`
-	Desc     string `json:"desc" form:"desc"`
+	Method   string `json:"method" form:"method" validate:"min=1,max=20"`
+	Path     string `json:"path" form:"path" validate:"min=1,max=100"`
+	Category string `json:"category" form:"category" validate:"min=1,max=50"`
+	Desc     string `json:"desc" form:"desc" validate:"min=0,max=100"`
 }
 
 // 批量删除接口结构体

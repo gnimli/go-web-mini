@@ -104,7 +104,7 @@ func (ac ApiController) CreateApi(c *gin.Context) {
 		return
 	}
 
-	response.Fail(c, nil, "创建接口成功")
+	response.Success(c, nil, "创建接口成功")
 	return
 }
 
