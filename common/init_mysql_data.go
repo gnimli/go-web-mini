@@ -64,6 +64,8 @@ func InitData() {
 
 	// 2写入菜单
 	newMenus := make([]model.Menu, 0)
+	var uint0 uint = 0
+	var uint1 uint = 1
 	menus := []model.Menu{
 		{
 			Model:     gorm.Model{ID: 1},
@@ -74,7 +76,7 @@ func InitData() {
 			Component: "Layout",
 			Redirect:  "/system/user",
 			Sort:      10,
-			ParentId:  0,
+			ParentId:  &uint0,
 			Roles:     roles[:2],
 			Creator:   "系统",
 		},
@@ -86,7 +88,7 @@ func InitData() {
 			Path:      "user",
 			Component: "/system/user/index",
 			Sort:      11,
-			ParentId:  1,
+			ParentId:  &uint1,
 			Roles:     roles[:2],
 			Creator:   "系统",
 		},
@@ -98,7 +100,7 @@ func InitData() {
 			Path:      "role",
 			Component: "/system/role/index",
 			Sort:      12,
-			ParentId:  1,
+			ParentId:  &uint1,
 			Roles:     roles[:2],
 			Creator:   "系统",
 		},
@@ -110,7 +112,7 @@ func InitData() {
 			Path:      "menu",
 			Component: "/system/menu/index",
 			Sort:      13,
-			ParentId:  1,
+			ParentId:  &uint1,
 			Roles:     roles[:2],
 			Creator:   "系统",
 		},
@@ -122,7 +124,7 @@ func InitData() {
 			Path:      "api",
 			Component: "/system/api/index",
 			Sort:      14,
-			ParentId:  1,
+			ParentId:  &uint1,
 			Roles:     roles[:2],
 			Creator:   "系统",
 		},

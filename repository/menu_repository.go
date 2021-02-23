@@ -43,7 +43,7 @@ func GenMenuTree(parentId uint, menus []*model.Menu) []*model.Menu {
 	tree := make([]*model.Menu, 0)
 
 	for _, m := range menus {
-		if m.ParentId == parentId {
+		if *m.ParentId == parentId {
 			children := GenMenuTree(m.ID, menus)
 			m.Children = children
 			tree = append(tree, m)
@@ -114,7 +114,15 @@ func (m MenuRepository) GetUserMenusByUserId(userId uint) ([]*model.Menu, error)
 		}
 	}
 
-	return allRoleMenusUniq, err
+	// 获取状态status为1的菜单
+	accessMenus := make([]*model.Menu, 0)
+	for _, menu := range allRoleMenusUniq {
+		if menu.Status == 1 {
+			accessMenus = append(accessMenus, menu)
+		}
+	}
+
+	return accessMenus, err
 }
 
 // 根据用户ID获取用户的权限(可访问)菜单树

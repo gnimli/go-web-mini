@@ -89,7 +89,7 @@ func (mc MenuController) CreateMenu(c *gin.Context) {
 		AlwaysShow: req.AlwaysShow,
 		Breadcrumb: req.Breadcrumb,
 		ActiveMenu: req.ActiveMenu,
-		ParentId:   req.ParentId,
+		ParentId:   &req.ParentId,
 		Creator:    ctxUser.Username,
 	}
 
@@ -145,7 +145,7 @@ func (mc MenuController) UpdateMenuById(c *gin.Context) {
 		AlwaysShow: req.AlwaysShow,
 		Breadcrumb: req.Breadcrumb,
 		ActiveMenu: req.ActiveMenu,
-		ParentId:   req.ParentId,
+		ParentId:   &req.ParentId,
 		Creator:    ctxUser.Username,
 	}
 
