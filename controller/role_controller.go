@@ -129,7 +129,7 @@ func (rc RoleController) UpdateRoleById(c *gin.Context) {
 
 	// 当前用户角色排序最小值（最高等级角色）以及当前用户
 	ur := repository.NewUserRepository()
-	minSort, _, err := ur.GetCurrentUserMinRoleSort(c)
+	minSort, ctxUser, err := ur.GetCurrentUserMinRoleSort(c)
 	if err != nil {
 		response.Fail(c, nil, err.Error())
 		return
@@ -163,6 +163,7 @@ func (rc RoleController) UpdateRoleById(c *gin.Context) {
 		Desc:    req.Desc,
 		Status:  req.Status,
 		Sort:    req.Sort,
+		Creator: ctxUser.Username,
 	}
 
 	// 更新角色
@@ -176,6 +177,10 @@ func (rc RoleController) UpdateRoleById(c *gin.Context) {
 	if req.Keyword != roles[0].Keyword {
 		// 获取policy
 		rolePolicies := common.CasbinEnforcer.GetFilteredPolicy(0, roles[0].Keyword)
+		if len(rolePolicies) == 0 {
+			response.Success(c, nil, "更新角色成功")
+			return
+		}
 		rolePoliciesCopy := make([][]string, 0)
 		// 替换keyword
 		for _, policy := range rolePolicies {

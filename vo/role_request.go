@@ -13,7 +13,7 @@ type CreateRoleRequest struct {
 type RoleListRequest struct {
 	Name     string `json:"name" form:"name"`
 	Keyword  string `json:"keyword" form:"keyword"`
-	Status   uint   `json:"status" form:"status" validate:"oneof=1 2"`
+	Status   uint   `json:"status" form:"status"`
 	PageNum  uint   `json:"pageNum" form:"pageNum"`
 	PageSize uint   `json:"pageSize" form:"pageSize"`
 }
