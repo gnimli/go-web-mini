@@ -16,7 +16,7 @@ type IRoleRepository interface {
 	UpdateRoleById(roleId uint, role *model.Role) error                  // 更新角色
 	GetRoleMenusById(roleId uint) ([]*model.Menu, error)                 // 获取角色的权限菜单
 	UpdateRoleMenus(role *model.Role) error                              // 更新角色的权限菜单
-	GetRoleApisByRoleKeyword(roleKeyword string) [][]string              // 根据角色关键字获取角色的权限接口
+	GetRoleApisByRoleKeyword(roleKeyword string) ([]*model.Api, error)   // 根据角色关键字获取角色的权限接口
 	UpdateRoleApis(roleKeyword string, reqRolePolicies [][]string) error // 更新角色的权限接口（先全部删除再新增）
 	BatchDeleteRoleByIds(roleIds []uint) error                           // 删除角色
 }
@@ -95,14 +95,40 @@ func (r RoleRepository) UpdateRoleMenus(role *model.Role) error {
 }
 
 // 根据角色关键字获取角色的权限接口
-func (r RoleRepository) GetRoleApisByRoleKeyword(roleKeyword string) [][]string {
+func (r RoleRepository) GetRoleApisByRoleKeyword(roleKeyword string) ([]*model.Api, error) {
 	policies := common.CasbinEnforcer.GetFilteredPolicy(0, roleKeyword)
-	return policies
+
+	// 获取所有接口
+	var apis []*model.Api
+	err := common.DB.Find(&apis).Error
+	if err != nil {
+		return apis, errors.New("获取角色的权限接口失败")
+	}
+
+	accessApis := make([]*model.Api, 0)
+
+	for _, policy := range policies {
+		path := policy[1]
+		method := policy[2]
+		for _, api := range apis {
+			if path == api.Path && method == api.Method {
+				accessApis = append(accessApis, api)
+				break
+			}
+		}
+	}
+
+	return accessApis, err
+
 }
 
 // 更新角色的权限接口（先全部删除再新增）
 func (r RoleRepository) UpdateRoleApis(roleKeyword string, reqRolePolicies [][]string) error {
 	// 先获取path中的角色ID对应角色已有的police(需要先删除的)
+	err := common.CasbinEnforcer.LoadPolicy()
+	if err != nil {
+		return errors.New("角色的权限接口策略加载失败")
+	}
 	rmPolicies := common.CasbinEnforcer.GetFilteredPolicy(0, roleKeyword)
 	if len(rmPolicies) > 0 {
 		isRemoved, _ := common.CasbinEnforcer.RemovePolicies(rmPolicies)
@@ -114,7 +140,7 @@ func (r RoleRepository) UpdateRoleApis(roleKeyword string, reqRolePolicies [][]s
 	if !isAdded {
 		return errors.New("更新角色的权限接口失败")
 	}
-	err := common.CasbinEnforcer.LoadPolicy()
+	err = common.CasbinEnforcer.LoadPolicy()
 	if err != nil {
 		return errors.New("更新角色的权限接口成功，角色的权限接口策略加载失败")
 	} else {

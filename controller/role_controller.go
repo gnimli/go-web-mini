@@ -305,6 +305,9 @@ func (rc RoleController) UpdateRoleMenusById(c *gin.Context) {
 	// 前端传来最新的MenuIds集合
 	menuIds := req.MenuIds
 
+	// 用户需要修改的菜单集合
+	reqMenus := make([]*model.Menu, 0)
+
 	// (非管理员)不能把角色的权限菜单设置的比当前用户所拥有的权限菜单多
 	if minSort != 1 {
 		for _, id := range menuIds {
@@ -313,15 +316,28 @@ func (rc RoleController) UpdateRoleMenusById(c *gin.Context) {
 				return
 			}
 		}
-	}
 
-	// 用户需要修改的菜单集合
-	reqMenus := make([]*model.Menu, 0)
-	for _, id := range menuIds {
-		for _, menu := range ctxUserMenus {
-			if id == menu.ID {
-				reqMenus = append(reqMenus, menu)
-				break
+		for _, id := range menuIds {
+			for _, menu := range ctxUserMenus {
+				if id == menu.ID {
+					reqMenus = append(reqMenus, menu)
+					break
+				}
+			}
+		}
+	} else {
+		// 管理员随意设置
+		// 根据menuIds查询查询菜单
+		menus, err := mr.GetMenus()
+		if err != nil {
+			response.Fail(c, nil, "获取菜单列表失败: "+err.Error())
+			return
+		}
+		for _, menuId := range menuIds {
+			for _, menu := range menus {
+				if menuId == menu.ID {
+					reqMenus = append(reqMenus, menu)
+				}
 			}
 		}
 	}
@@ -358,12 +374,12 @@ func (rc RoleController) GetRoleApisById(c *gin.Context) {
 	}
 	// 根据角色keyword获取casbin中policy
 	keyword := roles[0].Keyword
-	policies := rc.RoleRepository.GetRoleApisByRoleKeyword(keyword)
-	if len(policies) == 0 {
-		response.Fail(c, nil, "未获取到角色的权限接口")
+	apis, err := rc.RoleRepository.GetRoleApisByRoleKeyword(keyword)
+	if err != nil {
+		response.Fail(c, nil, err.Error())
 		return
 	}
-	response.Success(c, gin.H{"policies": policies}, "获取角色的权限接口成功")
+	response.Success(c, gin.H{"apis": apis}, "获取角色的权限接口成功")
 }
 
 // 更新角色的权限接口
@@ -433,10 +449,6 @@ func (rc RoleController) UpdateRoleApisById(c *gin.Context) {
 	apis, err := ar.GetApisById(apiIds)
 	if err != nil {
 		response.Fail(c, nil, "根据接口ID获取接口信息失败")
-		return
-	}
-	if len(apis) == 0 {
-		response.Fail(c, nil, "根据接口ID未获取到接口信息")
 		return
 	}
 	// 生成前端想要设置的角色policies

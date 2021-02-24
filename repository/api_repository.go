@@ -90,6 +90,8 @@ func (a ApiRepository) GetApiTree() ([]*dto.ApiTreeDto, error) {
 
 	for i, category := range categoryUniq {
 		apiTree[i] = &dto.ApiTreeDto{
+			ID:       -i,
+			Desc:     category,
 			Category: category,
 			Children: nil,
 		}
