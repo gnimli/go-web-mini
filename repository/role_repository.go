@@ -155,6 +155,20 @@ func (r RoleRepository) BatchDeleteRoleByIds(roleIds []uint) error {
 	if err != nil {
 		return err
 	}
-	err = common.DB.Select("Users", "Menus").Delete(&roles).Error
+	err = common.DB.Select("Users", "Menus").Unscoped().Delete(&roles).Error
+	// 删除成功就删除casbin policy
+	if err == nil {
+		for _, role := range roles {
+			roleKeyword := role.Keyword
+			rmPolicies := common.CasbinEnforcer.GetFilteredPolicy(0, roleKeyword)
+			if len(rmPolicies) > 0 {
+				isRemoved, _ := common.CasbinEnforcer.RemovePolicies(rmPolicies)
+				if !isRemoved {
+					return errors.New("删除角色成功, 删除角色关联权限接口失败")
+				}
+			}
+		}
+
+	}
 	return err
 }

@@ -71,7 +71,7 @@ func (m MenuRepository) BatchDeleteMenuByIds(menuIds []uint) error {
 	if err != nil {
 		return err
 	}
-	err = common.DB.Select("Roles").Delete(&menus).Error
+	err = common.DB.Select("Roles").Unscoped().Delete(&menus).Error
 	return err
 }
 

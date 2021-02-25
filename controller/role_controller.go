@@ -90,7 +90,7 @@ func (rc RoleController) CreateRole(c *gin.Context) {
 	role := model.Role{
 		Name:    req.Name,
 		Keyword: req.Keyword,
-		Desc:    req.Desc,
+		Desc:    &req.Desc,
 		Status:  req.Status,
 		Sort:    req.Sort,
 		Creator: ctxUser.Username,
@@ -160,7 +160,7 @@ func (rc RoleController) UpdateRoleById(c *gin.Context) {
 	role := model.Role{
 		Name:    req.Name,
 		Keyword: req.Keyword,
-		Desc:    req.Desc,
+		Desc:    &req.Desc,
 		Status:  req.Status,
 		Sort:    req.Sort,
 		Creator: ctxUser.Username,

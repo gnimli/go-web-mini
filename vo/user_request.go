@@ -20,10 +20,10 @@ type CreateUserRequest struct {
 
 // 获取用户列表结构体
 type UserListRequest struct {
-	Username string `json:"username" form:"username" validate:"min=2,max=20"`
-	Mobile   string `json:"mobile" form:"mobile" validate:"checkMobile"`
-	Nickname string `json:"nickname" form:"nickname" validate:"min=2,max=20"`
-	Status   uint   `json:"status" form:"status" validate:"oneof=1 2"`
+	Username string `json:"username" form:"username" `
+	Mobile   string `json:"mobile" form:"mobile" `
+	Nickname string `json:"nickname" form:"nickname" `
+	Status   uint   `json:"status" form:"status" `
 	PageNum  uint   `json:"pageNum" form:"pageNum"`
 	PageSize uint   `json:"pageSize" form:"pageSize"`
 }

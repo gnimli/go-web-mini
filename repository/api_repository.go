@@ -165,7 +165,7 @@ func (a ApiRepository) BatchDeleteApiByIds(apiIds []uint) error {
 		return errors.New("根据接口ID未获取到接口列表")
 	}
 
-	err = common.DB.Where("id IN (?)", apiIds).Delete(&model.Api{}).Error
+	err = common.DB.Where("id IN (?)", apiIds).Unscoped().Delete(&model.Api{}).Error
 	// 如果删除成功，删除casbin中policy
 	if err == nil {
 		for _, api := range apis {

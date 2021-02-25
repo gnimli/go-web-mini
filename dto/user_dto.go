@@ -19,14 +19,15 @@ func ToUserInfoDto(user model.User) UserInfoDto {
 		Username:     user.Username,
 		Mobile:       user.Mobile,
 		Avatar:       user.Avatar,
-		Nickname:     user.Nickname,
-		Introduction: user.Introduction,
+		Nickname:     *user.Nickname,
+		Introduction: *user.Introduction,
 		Roles:        user.Roles,
 	}
 }
 
 // 返回给前端的用户列表
 type UsersDto struct {
+	ID           uint   `json:"ID"`
 	Username     string `json:"username"`
 	Mobile       string `json:"mobile"`
 	Avatar       string `json:"avatar"`
@@ -34,20 +35,27 @@ type UsersDto struct {
 	Introduction string `json:"introduction"`
 	Status       uint   `json:"status"`
 	Creator      string `json:"creator"`
+	RoleIds      []uint `json:"roleIds"`
 }
 
 func ToUsersDto(userList []*model.User) []UsersDto {
 	var users []UsersDto
 	for _, user := range userList {
 		userDto := UsersDto{
+			ID:           user.ID,
 			Username:     user.Username,
 			Mobile:       user.Mobile,
 			Avatar:       user.Avatar,
-			Nickname:     user.Nickname,
-			Introduction: user.Introduction,
+			Nickname:     *user.Nickname,
+			Introduction: *user.Introduction,
 			Status:       user.Status,
 			Creator:      user.Creator,
 		}
+		roleIds := make([]uint, 0)
+		for _, role := range user.Roles {
+			roleIds = append(roleIds, role.ID)
+		}
+		userDto.RoleIds = roleIds
 		users = append(users, userDto)
 	}
 

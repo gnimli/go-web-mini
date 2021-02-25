@@ -78,9 +78,9 @@ func (mc MenuController) CreateMenu(c *gin.Context) {
 	menu := model.Menu{
 		Name:       req.Name,
 		Title:      req.Title,
-		Icon:       req.Icon,
+		Icon:       &req.Icon,
 		Path:       req.Path,
-		Redirect:   req.Redirect,
+		Redirect:   &req.Redirect,
 		Component:  req.Component,
 		Sort:       req.Sort,
 		Status:     req.Status,
@@ -88,7 +88,7 @@ func (mc MenuController) CreateMenu(c *gin.Context) {
 		NoCache:    req.NoCache,
 		AlwaysShow: req.AlwaysShow,
 		Breadcrumb: req.Breadcrumb,
-		ActiveMenu: req.ActiveMenu,
+		ActiveMenu: &req.ActiveMenu,
 		ParentId:   &req.ParentId,
 		Creator:    ctxUser.Username,
 	}
@@ -134,9 +134,9 @@ func (mc MenuController) UpdateMenuById(c *gin.Context) {
 	menu := model.Menu{
 		Name:       req.Name,
 		Title:      req.Title,
-		Icon:       req.Icon,
+		Icon:       &req.Icon,
 		Path:       req.Path,
-		Redirect:   req.Redirect,
+		Redirect:   &req.Redirect,
 		Component:  req.Component,
 		Sort:       req.Sort,
 		Status:     req.Status,
@@ -144,7 +144,7 @@ func (mc MenuController) UpdateMenuById(c *gin.Context) {
 		NoCache:    req.NoCache,
 		AlwaysShow: req.AlwaysShow,
 		Breadcrumb: req.Breadcrumb,
-		ActiveMenu: req.ActiveMenu,
+		ActiveMenu: &req.ActiveMenu,
 		ParentId:   &req.ParentId,
 		Creator:    ctxUser.Username,
 	}

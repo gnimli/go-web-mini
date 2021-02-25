@@ -174,9 +174,9 @@ func (ur UserRepository) GetUsers(req *vo.UserListRequest) ([]*model.User, int64
 	pageNum := int(req.PageNum)
 	pageSize := int(req.PageSize)
 	if pageNum > 0 && pageSize > 0 {
-		err = db.Offset((pageNum - 1) * pageSize).Limit(pageSize).Find(&list).Error
+		err = db.Offset((pageNum - 1) * pageSize).Limit(pageSize).Preload("Roles").Find(&list).Error
 	} else {
-		err = db.Find(&list).Error
+		err = db.Preload("Roles").Find(&list).Error
 	}
 	return list, total, err
 }
@@ -211,7 +211,14 @@ func (ur UserRepository) CreateUser(user *model.User) error {
 
 // 更新用户
 func (ur UserRepository) UpdateUser(user *model.User) error {
-	err := common.DB.Model(user).Association("Roles").Replace(user.Roles)
+	err := common.DB.Model(user).Updates(user).Error
+	if err != nil {
+		return err
+	}
+	err = common.DB.Model(user).Association("Roles").Replace(user.Roles)
+
+	//err := common.DB.Session(&gorm.Session{FullSaveAssociations: true}).Updates(&user).Error
+
 	// 如果更新成功就更新用户信息缓存
 	if err == nil {
 		userInfoCache.Set(user.Username, *user, cache.DefaultExpiration)
@@ -232,7 +239,7 @@ func (ur UserRepository) BatchDeleteUserByIds(ids []uint) error {
 		users = append(users, user)
 	}
 
-	err := common.DB.Select("Roles").Delete(&users).Error
+	err := common.DB.Select("Roles").Unscoped().Delete(&users).Error
 	// 删除用户成功，则删除用户信息缓存
 	if err == nil {
 		for _, user := range users {

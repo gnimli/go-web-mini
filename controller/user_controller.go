@@ -195,8 +195,8 @@ func (uc UserController) CreateUser(c *gin.Context) {
 		Password:     util.GenPasswd(req.Password),
 		Mobile:       req.Mobile,
 		Avatar:       req.Avatar,
-		Nickname:     req.Nickname,
-		Introduction: req.Introduction,
+		Nickname:     &req.Nickname,
+		Introduction: &req.Introduction,
 		Status:       req.Status,
 		Creator:      ctxUser.Username,
 		Roles:        roles,
@@ -282,11 +282,11 @@ func (uc UserController) UpdateUserById(c *gin.Context) {
 	user := model.User{
 		Model:        oldUser.Model,
 		Username:     req.Username,
-		Password:     "",
+		Password:     oldUser.Password,
 		Mobile:       req.Mobile,
 		Avatar:       req.Avatar,
-		Nickname:     req.Nickname,
-		Introduction: req.Introduction,
+		Nickname:     &req.Nickname,
+		Introduction: &req.Introduction,
 		Status:       req.Status,
 		Creator:      ctxUser.Username,
 		Roles:        roles,
@@ -336,17 +336,16 @@ func (uc UserController) UpdateUserById(c *gin.Context) {
 		}
 
 		// 密码赋值
-		if req.Password == "" {
-			req.Password = "123456"
+		if req.Password != "" {
+			// 密码通过RSA解密
+			decodeData, err := util.RSADecrypt([]byte(req.Password), config.Conf.System.RSAPrivateBytes)
+			if err != nil {
+				response.Fail(c, nil, err.Error())
+				return
+			}
+			req.Password = string(decodeData)
+			user.Password = util.GenPasswd(req.Password)
 		}
-		// 密码通过RSA解密
-		decodeData, err := util.RSADecrypt([]byte(req.Password), config.Conf.System.RSAPrivateBytes)
-		if err != nil {
-			response.Fail(c, nil, err.Error())
-			return
-		}
-		req.Password = string(decodeData)
-		user.Password = util.GenPasswd(req.Password)
 
 	}
 
