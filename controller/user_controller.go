@@ -142,15 +142,18 @@ func (uc UserController) CreateUser(c *gin.Context) {
 	}
 
 	// 密码通过RSA解密
-	decodeData, err := util.RSADecrypt([]byte(req.Password), config.Conf.System.RSAPrivateBytes)
-	if err != nil {
-		response.Fail(c, nil, err.Error())
-		return
-	}
-	req.Password = string(decodeData)
-	if len(req.Password) < 6 {
-		response.Fail(c, nil, "密码长度至少为6位")
-		return
+	// 密码不为空就解密
+	if req.Password != "" {
+		decodeData, err := util.RSADecrypt([]byte(req.Password), config.Conf.System.RSAPrivateBytes)
+		if err != nil {
+			response.Fail(c, nil, err.Error())
+			return
+		}
+		req.Password = string(decodeData)
+		if len(req.Password) < 6 {
+			response.Fail(c, nil, "密码长度至少为6位")
+			return
+		}
 	}
 
 	// 当前用户角色排序最小值（最高等级角色）以及当前用户
@@ -186,7 +189,7 @@ func (uc UserController) CreateUser(c *gin.Context) {
 		return
 	}
 
-	// 创建用户
+	// 密码为空就默认123456
 	if req.Password == "" {
 		req.Password = "123456"
 	}
