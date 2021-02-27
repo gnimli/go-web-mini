@@ -32,12 +32,12 @@ Go + Vue开发的管理系统脚手架, 前后端分离, 仅包含项目开发�
 
 ## 项目截图
 
-![登录](/GithubImages/login.PNG)
-![用户管理](/GithubImages/user.PNG)
-![角色管理](/GithubImages/role.PNG)
-![角色权限](/GithubImages/rolePermission.PNG)
-![菜单管理](/GithubImages/menu.PNG)
-![API管理](/GithubImages/api.PNG)
+![登录](https://github.com/gnimli/go-web-mini-ui/blob/main/src/assets/GithubImages/login.PNG)
+![用户管理](https://github.com/gnimli/go-web-mini-ui/blob/main/src/assets/GithubImages/user.PNG)
+![角色管理](https://github.com/gnimli/go-web-mini-ui/blob/main/src/assets/GithubImages/role.PNG)
+![角色权限](https://github.com/gnimli/go-web-mini-ui/blob/main/src/assets/GithubImages/rolePermission.PNG)
+![菜单管理](https://github.com/gnimli/go-web-mini-ui/blob/main/src/assets/GithubImages/menu.PNG)
+![API管理](https://github.com/gnimli/go-web-mini-ui/blob/main/src/assets/GithubImages/api.PNG)
 
 ## 项目结构概览
 
