@@ -30,6 +30,15 @@ Go + Vue开发的管理系统脚手架, 前后端分离, 仅包含项目开发�
 - `CORSMiddleware` -- 跨域中间件 -- 解决跨域问题
 - `CasbinMiddleware` 访问控制中间件 -- 基于Casbin RBAC, 精细控制接口访问
 
+## 项目截图
+
+![登录](/GithubImages/login.PNG)
+![用户管理](/GithubImages/user.PNG)
+![角色管理](/GithubImages/role.PNG)
+![角色权限](/GithubImages/rolePermission.PNG)
+![菜单管理](/GithubImages/menu.PNG)
+![API管理](/GithubImages/api.PNG)
+
 ## 项目结构概览
 
 ```
@@ -59,5 +68,4 @@ Go + Vue开发的管理系统脚手架, 前后端分离, 仅包含项目开发�
 ## MIT License
 
     Copyright (c) 2021 gnimli
-
 

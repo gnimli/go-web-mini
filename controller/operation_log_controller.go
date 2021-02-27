@@ -26,7 +26,7 @@ func NewOperationLogController() IOperationLogController {
 
 // 获取操作日志列表
 func (oc OperationLogController) GetOperationLogs(c *gin.Context) {
-	var req vo.OperationLogsRequest
+	var req vo.OperationLogListRequest
 	// 绑定参数
 	if err := c.ShouldBind(&req); err != nil {
 		response.Fail(c, nil, err.Error())
@@ -49,5 +49,25 @@ func (oc OperationLogController) GetOperationLogs(c *gin.Context) {
 
 // 批量删除操作日志
 func (oc OperationLogController) BatchDeleteOperationLogByIds(c *gin.Context) {
-	panic("implement me")
+	var req vo.DeleteOperationLogRequest
+	// 参数绑定
+	if err := c.ShouldBind(&req); err != nil {
+		response.Fail(c, nil, err.Error())
+		return
+	}
+	// 参数校验
+	if err := common.Validate.Struct(&req); err != nil {
+		errStr := err.(validator.ValidationErrors)[0].Translate(common.Trans)
+		response.Fail(c, nil, errStr)
+		return
+	}
+
+	// 删除接口
+	err := oc.operationLogRepository.BatchDeleteOperationLogByIds(req.OperationLogIds)
+	if err != nil {
+		response.Fail(c, nil, "删除日志失败: "+err.Error())
+		return
+	}
+
+	response.Success(c, nil, "删除日志成功")
 }

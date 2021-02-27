@@ -9,14 +9,14 @@ import (
 
 func InitOperationLogRoutes(r *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddleware) gin.IRoutes {
 	operationLogController := controller.NewOperationLogController()
-	router := r.Group("/operation/log")
+	router := r.Group("/log")
 	// 开启jwt认证中间件
 	router.Use(authMiddleware.MiddlewareFunc())
 	// 开启casbin鉴权中间件
 	router.Use(middleware.CasbinMiddleware())
 	{
-		router.GET("/list", operationLogController.GetOperationLogs)
-		router.DELETE("/delete/batch", operationLogController.BatchDeleteOperationLogByIds)
+		router.GET("/operation/list", operationLogController.GetOperationLogs)
+		router.DELETE("/operation/delete/batch", operationLogController.BatchDeleteOperationLogByIds)
 	}
 	return r
 }

@@ -72,6 +72,10 @@ func InitData() {
 	peoplesStr := "peoples"
 	treeTableStr := "tree-table"
 	treeStr := "tree"
+	exampleStr := "example"
+	logOperationStr := "/log/operation-log"
+	documentationStr := "documentation"
+	var uint6 uint = 6
 	menus := []model.Menu{
 		{
 			Model:     gorm.Model{ID: 1},
@@ -83,7 +87,7 @@ func InitData() {
 			Redirect:  &systemUserStr,
 			Sort:      10,
 			ParentId:  &uint0,
-			Roles:     roles[:2],
+			Roles:     roles[:1],
 			Creator:   "系统",
 		},
 		{
@@ -95,7 +99,7 @@ func InitData() {
 			Component: "/system/user/index",
 			Sort:      11,
 			ParentId:  &uint1,
-			Roles:     roles[:2],
+			Roles:     roles[:1],
 			Creator:   "系统",
 		},
 		{
@@ -107,7 +111,7 @@ func InitData() {
 			Component: "/system/role/index",
 			Sort:      12,
 			ParentId:  &uint1,
-			Roles:     roles[:2],
+			Roles:     roles[:1],
 			Creator:   "系统",
 		},
 		{
@@ -119,7 +123,7 @@ func InitData() {
 			Component: "/system/menu/index",
 			Sort:      13,
 			ParentId:  &uint1,
-			Roles:     roles[:2],
+			Roles:     roles[:1],
 			Creator:   "系统",
 		},
 		{
@@ -131,6 +135,31 @@ func InitData() {
 			Component: "/system/api/index",
 			Sort:      14,
 			ParentId:  &uint1,
+			Roles:     roles[:1],
+			Creator:   "系统",
+		},
+		{
+			Model:     gorm.Model{ID: 6},
+			Name:      "Log",
+			Title:     "日志管理",
+			Icon:      &exampleStr,
+			Path:      "/log",
+			Component: "Layout",
+			Redirect:  &logOperationStr,
+			Sort:      20,
+			ParentId:  &uint0,
+			Roles:     roles[:2],
+			Creator:   "系统",
+		},
+		{
+			Model:     gorm.Model{ID: 7},
+			Name:      "OperationLog",
+			Title:     "操作日志",
+			Icon:      &documentationStr,
+			Path:      "operation-log",
+			Component: "/log/operation-log/index",
+			Sort:      21,
+			ParentId:  &uint6,
 			Roles:     roles[:2],
 			Creator:   "系统",
 		},
@@ -422,15 +451,15 @@ func InitData() {
 		},
 		{
 			Method:   "GET",
-			Path:     "/operation/log/list",
-			Category: "operation-log",
+			Path:     "/log/operation/list",
+			Category: "log",
 			Desc:     "获取操作日志列表",
 			Creator:  "系统",
 		},
 		{
 			Method:   "DELETE",
-			Path:     "/operation/log/delete/batch",
-			Category: "operation-log",
+			Path:     "/log/operation/delete/batch",
+			Category: "log",
 			Desc:     "批量删除操作日志",
 			Creator:  "系统",
 		},
@@ -456,12 +485,17 @@ func InitData() {
 				"/base/logout",
 				"/base/refreshToken",
 				"/user/info",
-				"/menu/tree",
+				"/menu/access/tree/:userId",
 			}
 
 			if funk.ContainsString(basePaths, api.Path) {
 				newRoleCasbin = append(newRoleCasbin, model.RoleCasbin{
 					Keyword: roles[1].Keyword,
+					Path:    api.Path,
+					Method:  api.Method,
+				})
+				newRoleCasbin = append(newRoleCasbin, model.RoleCasbin{
+					Keyword: roles[2].Keyword,
 					Path:    api.Path,
 					Method:  api.Method,
 				})

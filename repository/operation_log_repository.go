@@ -9,7 +9,7 @@ import (
 )
 
 type IOperationLogRepository interface {
-	GetOperationLogs(req *vo.OperationLogsRequest) ([]model.OperationLog, int64, error)
+	GetOperationLogs(req *vo.OperationLogListRequest) ([]model.OperationLog, int64, error)
 	BatchDeleteOperationLogByIds(ids []uint) error
 	SaveOperationLogChannel(olc <-chan *model.OperationLog) //处理OperationLogChan将日志记录到数据库
 }
@@ -21,7 +21,7 @@ func NewOperationLogRepository() IOperationLogRepository {
 	return OperationLogRepository{}
 }
 
-func (o OperationLogRepository) GetOperationLogs(req *vo.OperationLogsRequest) ([]model.OperationLog, int64, error) {
+func (o OperationLogRepository) GetOperationLogs(req *vo.OperationLogListRequest) ([]model.OperationLog, int64, error) {
 	var list []model.OperationLog
 	db := common.DB.Model(&model.OperationLog{}).Order("start_time DESC")
 
@@ -61,7 +61,8 @@ func (o OperationLogRepository) GetOperationLogs(req *vo.OperationLogsRequest) (
 }
 
 func (o OperationLogRepository) BatchDeleteOperationLogByIds(ids []uint) error {
-	panic("implement me")
+	err := common.DB.Where("id IN (?)", ids).Unscoped().Delete(&model.OperationLog{}).Error
+	return err
 }
 
 //var Logs []model.OperationLog //全局变量多个线程需要加锁，所以每个线程自己维护一个
